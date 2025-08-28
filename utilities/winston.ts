@@ -1,4 +1,3 @@
-import { time } from "console";
 import winston, { transports, format } from "winston";
 const { combine, timestamp, colorize, prettyPrint, simple, json } = format;
 const { Console, File } = transports;

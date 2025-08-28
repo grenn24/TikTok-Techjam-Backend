@@ -1,6 +1,6 @@
-import jwt from "jsonwebtoken";
 import config from "config";
 import { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import authService from "../services/auth";
 
 export const auth =

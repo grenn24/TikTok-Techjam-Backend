@@ -1,8 +1,7 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import config from "config";
-
 import fs from "fs";
 import path from "path";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import config from "config";
 
 const s3Client = new S3Client({
 	region: "Asia-Pacific (APAC)",

@@ -1,19 +1,34 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
 
 class UserService {
 	prisma = new PrismaClient();
 
+	async getAllUsers() {
+		return this.prisma.user.findMany();
+	}
+
+	async createUser(data: { name: string; email: string; password: string }) {
+		// Hash the password asynchronously
+		const hashedPassword = await bcrypt.hash(data.password, 10);
+
+		// Save the user with hashed password
+		return this.prisma.user.create({
+			data: {
+				name: data.name,
+				email: data.email,
+				password: hashedPassword,
+			},
+		});
+	}
+
 	// Fetch user by ID
 	async getUser(userId: string) {
-		try {
-			const user = await this.prisma.user.findUnique({
-				where: { id: userId },
-			});
-			if (!user) throw new Error("User not found");
-			return user;
-		} catch (err) {
-			throw err;
-		}
+		const user = await this.prisma.user.findUnique({
+			where: { id: userId },
+		});
+		if (!user) throw new Error("User not found");
+		return user;
 	}
 
 	// Update user profile or wallet

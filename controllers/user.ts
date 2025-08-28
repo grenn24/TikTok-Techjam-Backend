@@ -2,6 +2,29 @@ import { Request, Response } from "express";
 import userService from "../services/user";
 
 class UserController {
+	async getAllUsers(req: Request, res: Response) {
+		try {
+			const users = await userService.getAllUsers();
+			res.json(users);
+		} catch (err: any) {
+			res.status(500).json({ error: err.message });
+		}
+	}
+
+	async createUser(req: Request, res: Response) {
+		try {
+			const { name, email, password } = req.body;
+			const user = await userService.createUser({
+				name,
+				email,
+				password,
+			});
+			res.status(201).json(user);
+		} catch (err: any) {
+			res.status(400).json({ error: err.message });
+		}
+	}
+
 	// GET /users/:id
 	async getUser(req: Request, res: Response) {
 		try {

@@ -1,4 +1,4 @@
-import winston, { transports, format, ExceptionHandler } from "winston";
+import winston, { transports, format } from "winston";
 
 const { combine, timestamp, colorize, prettyPrint, simple, json, printf } =
 	format;
