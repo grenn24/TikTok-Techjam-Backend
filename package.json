@@ -15,7 +15,9 @@
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"format": "npx prettier --check \"**/*.{js,ts,jsx,tsx}\"",
-		"format:fix": "npx prettier --write \"**/*.{js,ts,jsx,tsx}\""
+		"format:fix": "npx prettier --write \"**/*.{js,ts,jsx,tsx}\"",
+		"generate": "prisma generate",
+		"migrate": "prisma migrate dev"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.750.0",
