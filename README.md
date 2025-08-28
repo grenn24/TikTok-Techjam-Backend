@@ -1,3 +1,11 @@
 # TikTok Techjam Backend
 
-### Rename .env.development to .env
+### Routes
+- /user
+- /content
+- /reward
+- /gift
+- /fraud
+
+### Setup
+- Rename .env.development to .env
