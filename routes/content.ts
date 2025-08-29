@@ -22,6 +22,12 @@ contentRoutes.get(
 	contentController.getContentById.bind(contentController)
 );
 
+// Generate and populate the content quality field
+contentRoutes.post(
+	"/:id/quality",
+	contentController.generateContentQuality.bind(contentController)
+);
+
 // Update content (title, description, qualityScore)
 contentRoutes.put(
 	"/:id",

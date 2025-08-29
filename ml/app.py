@@ -4,12 +4,16 @@ from pydantic import BaseModel
 import tensorflow as tf
 import numpy as np
 from utils import preprocess_features
+import logging
+import joblib
+
+logger = logging.getLogger("uvicorn.error") 
 
 app = FastAPI(title="Reward ML Service")
 
 # Load the trained model once at startup
 try:
-    model = tf.keras.models.load_model("model/reward_model.h5")
+    model = joblib.load("model/content_quality_model.pkl")
 except Exception as e:
     print("Error loading model:", e)
     model = None
@@ -44,15 +48,19 @@ def predict(data: ContentFeatures):
             data.contentLength,
             data.creatorReputation,
         ]
+
+        # Preprocess and ensure 2D array for the model
         x = preprocess_features(features_list)
-        x = np.array([x], dtype=np.float32)
+        x = np.array(x, dtype=np.float32).reshape(1, -1)  # shape (1, n_features)
 
         # Predict content quality / reward multiplier
         pred = model.predict(x)
-        quality_score = float(pred[0][0])
-        quality_score = quality_score * 100
 
-        return {"quality_score": quality_score}
+        # LightGBM returns a scalar for single sample, convert directly
+        quality_score = float(pred) * 100
+
+        return {"qualityScore": quality_score}
 
     except Exception as e:
+        logger.exception("Error during prediction")
         raise HTTPException(status_code=400, detail=str(e))

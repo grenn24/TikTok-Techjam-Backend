@@ -28,7 +28,7 @@ data = pd.DataFrame({
 })
 
 X = data[["likes", "shares", "comments", "watch_time", "content_length", "creator_reputation"]]
-y = data["reward_multiplier"]
+y = data["reward_multiplier"] / max(data["reward_multiplier"])
 
 # Fit scaler
 fit_scaler(X)

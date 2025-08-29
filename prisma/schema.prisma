@@ -20,7 +20,6 @@ model User {
   rewards      Reward?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  reputation Float @default(0) // from 0 - 1
 }
 
 enum Role {
@@ -45,11 +44,28 @@ model Content {
   commentCount Int @default(0)
   watchTime Float @default(0)  // in seconds
   length Float @default(0) // in seconds
+  url String?
 }
 
 enum ContentType {
   VIDEO
   LIVE
+}
+
+model Engagement {
+  id        String   @id @default(cuid())
+  userId    String
+  contentId String
+  type      EngagementType
+  createdAt DateTime @default(now())
+
+  @@unique([userId, contentId, type])
+}
+
+enum EngagementType {
+  LIKE
+  COMMENT
+  SHARE
 }
 
 model Gift {
@@ -97,6 +113,7 @@ enum FraudType {
   AML
 }
 
+// immutable ledgers of transactions
 model AuditLog {
   id          String   @id @default(cuid())
   userId      String

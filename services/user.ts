@@ -63,6 +63,44 @@ class UserService {
 			throw new Error("User not found or failed to add funds");
 		}
 	}
+
+	async generateReputation(userId: string): Promise<number> {
+		const user = await this.prisma.user.findUnique({
+			where: { id: userId },
+		});
+
+		if (!user) {
+			return 0;
+		}
+
+		// Count unique users who liked, commented, or shared the creator's content
+		const likesCount = await this.prisma.engagement.count({
+			where: {
+				type: "LIKE",
+				userId,
+			},
+		});
+
+		const commentsCount = await this.prisma.engagement.count({
+			where: {
+				type: "COMMENT",
+				userId,
+			},
+		});
+
+		const sharesCount = await this.prisma.engagement.count({
+			where: {
+				type: "SHARE",
+				userId,
+			},
+		});
+
+		const maxExpectedEngagement = 1000;
+		const rawScore = likesCount + 2 * commentsCount + 3 * sharesCount;
+		const reputation = Math.min(1, rawScore / maxExpectedEngagement);
+
+		return reputation;
+	}
 }
 
 const userService = new UserService();
