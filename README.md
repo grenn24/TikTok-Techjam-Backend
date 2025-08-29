@@ -51,10 +51,9 @@ Open 2 terminal windows
 - Port 3000: Backend API
 - Port 8001: ML Server
 
-### Commands
-Train ML Model:  
-- python train_content_quality_model.py
-- python train_compliance_model.py
+### Training ML Models 
+- Quality: python train_content_quality_model.py
+- Compliance: python train_compliance_model.py
 
 ### ML Architecture
 Multi-Stream Reward Distribution:  
