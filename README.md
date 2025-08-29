@@ -35,7 +35,6 @@ Add this to development.json:
 }
 ```
 
-Open 2 terminal windows  
 2. Backend:  
 - Rename .env.development to .env
 - npm install
