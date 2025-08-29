@@ -16,3 +16,14 @@
 - Rename .env.development to .env
 - npm install
 - npm run dev
+
+- python -m venv venv
+- source venv/bin/activate        # Linux/Mac
+- venv/Scripts/activate           # Windows
+- pip install -r requirements.txt
+- uvicorn app:app --reload --port 8001
+- change Python interpreter to the one inside venv
+
+### Ports
+- Port 3000: Backend API
+- Port 8001: ML Server
