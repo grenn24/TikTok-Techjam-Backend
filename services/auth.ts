@@ -14,6 +14,7 @@ class AuthService {
 				token,
 				config.get("SECRET_KEY") as string
 			);
+			console.log(payload);
 			if (typeof payload !== "object" || payload.type !== type) {
 				return false;
 			}

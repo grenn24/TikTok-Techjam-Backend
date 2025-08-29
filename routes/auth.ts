@@ -1,8 +1,12 @@
+import authController from "controllers/auth";
 import express from "express";
 
 const authRoutes = express.Router();
 
-// Define the route handlers
-authRoutes.post("", (request, response) => {});
+// ----------------- SIGN UP -----------------
+authRoutes.post("/signup", authController.signup.bind(authController));
+
+// ----------------- LOGIN -----------------
+authRoutes.post("/login", authController.login.bind(authController));
 
 export default authRoutes;

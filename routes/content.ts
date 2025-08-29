@@ -7,14 +7,14 @@ const contentRoutes = express.Router();
 // Middleware: all content routes require authentication
 contentRoutes.use(auth("User"));
 
+// Get all content (optional filters like creator, type)
+contentRoutes.get("/", contentController.getAllContent.bind(contentController));
+
 // Upload new content (video or live)
 contentRoutes.post(
 	"/",
 	contentController.uploadContent.bind(contentController)
 );
-
-// Get all content (optional filters like creator, type)
-contentRoutes.get("/", contentController.getAllContent.bind(contentController));
 
 // Get specific content by ID
 contentRoutes.get(
