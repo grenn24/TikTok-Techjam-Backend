@@ -12,17 +12,20 @@
 - Report fraud activity  
 /fraud
 
-### Setup
+### Setup  
+Backend:  
 - Rename .env.development to .env
 - npm install
-- npm run dev
+- npm run dev  
 
+ML:  
 - python -m venv venv
-- source venv/bin/activate        # Linux/Mac
-- venv/Scripts/activate           # Windows
+- source venv/bin/activate  # Linux/Mac
+- source venv/Scripts/activate  # Windows
 - pip install -r requirements.txt
 - uvicorn app:app --reload --port 8001
-- change Python interpreter to the one inside venv
+- change Python interpreter to the one located inside venv/Scripts
+- python train_model.py  # train model
 
 ### Ports
 - Port 3000: Backend API
