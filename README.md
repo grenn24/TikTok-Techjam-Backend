@@ -19,11 +19,13 @@
 - production.json
 
 Add this to custom-environment-variables.json:  
+```json
 {
     "PORT": "PORT",
     "ML_PORT": "ML_PORT",
     "SECRET_KEY": "SECRET_KEY"
 }
+```
 Add this to development.json: 
 ```json 
 {
