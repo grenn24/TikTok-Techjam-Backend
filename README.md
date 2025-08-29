@@ -45,18 +45,19 @@ Add this to development.json:
 - python -m venv venv
 - source venv/bin/activate  # Linux/Mac
 - source venv/Scripts/activate  # Windows
+- change Python interpreter to the one located inside venv/Scripts
 - pip install -r requirements.txt
 - uvicorn app:app --reload --log-level debug --port 8001
-- change Python interpreter to the one located inside venv/Scripts
-- python train_model.py  # train model or use the existing model
 
 ### Ports
-- Port 3000: Backend API
-- Port 8001: ML Server
+- 3000: Backend API
+- 8001: ML Server
 
 ### Training ML Models 
 - Quality: python train_content_quality_model.py
 - Compliance: python train_compliance_model.py
+
+Existing models are pretrained
 
 ### ML Architecture
 Multi-Stream Reward Distribution:  
