@@ -14,3 +14,5 @@
 
 ### Setup
 - Rename .env.development to .env
+- npm install
+- npm run dev
