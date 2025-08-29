@@ -1,10 +1,22 @@
 import pandas as pd
 import joblib
 import lightgbm as lgb
-from preprocess import fit_scaler
+from sklearn.preprocessing import MinMaxScaler
 
-# Example dataset
-# You should replace this with your historical content data
+
+def fit_scaler(X):
+    """
+    Fit a MinMaxScaler to your training data and save it.
+    """
+    global scaler
+    scaler = MinMaxScaler()
+    scaler.fit(X)
+    
+    # Make sure model directory exists
+    joblib.dump(scaler, "model/scaler.pkl")
+    print("Scaler fitted and saved!")
+
+# Historical content data
 data = pd.DataFrame({
     "likes": [10, 50, 200, 500],
     "shares": [1, 5, 20, 50],

@@ -28,10 +28,4 @@ contentRoutes.put(
 	contentController.updateContent.bind(contentController)
 );
 
-// Optional: Update quality score via ML or manual
-contentRoutes.post(
-	"/:id/score",
-	contentController.updateContentScore.bind(contentController)
-);
-
 export default contentRoutes;

@@ -40,9 +40,9 @@ model Content {
   gifts Gift[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  likes BigInt @default(0)
-  shares BigInt @default(0)
-  commentCount BigInt @default(0)
+  likes Int @default(0)
+  shares Int @default(0)
+  commentCount Int @default(0)
   watchTime Float @default(0)  // in seconds
   length Float @default(0) // in seconds
 }

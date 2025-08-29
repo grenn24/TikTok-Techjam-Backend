@@ -13,14 +13,32 @@
 /fraud
 
 ### Setup  
+1. Create a /config directory with the following files:
+- custom-environment-variables.json
+- development.json
+- production.json
+
+Add this to custom-environment-variables.json:  
+{
+    "PORT": "PORT",
+    "ML_PORT": "ML_PORT",
+    "SECRET_KEY": "SECRET_KEY"
+}
+Add this to development.json:  
+{
+	"NODE_ENV": "development",
+	"PORT": 3000,
+	"DATABASE_URL": "postgres://<password>@localhost:5433/database-name",
+}
+
 Open 2 terminal windows  
-Backend:  
+2. Backend:  
 - Rename .env.development to .env
 - npm install
 - npm run prestart (build prisma client)
 - npm run dev  
 
-ML:  
+3. ML:  
 - python -m venv venv
 - source venv/bin/activate  # Linux/Mac
 - source venv/Scripts/activate  # Windows

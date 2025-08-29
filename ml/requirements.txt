@@ -3,3 +3,6 @@ uvicorn
 tensorflow
 numpy
 pydantic
+scikit-learn
+pandas
+joblib

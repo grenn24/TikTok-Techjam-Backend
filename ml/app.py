@@ -50,6 +50,7 @@ def predict(data: ContentFeatures):
         # Predict content quality / reward multiplier
         pred = model.predict(x)
         quality_score = float(pred[0][0])
+        quality_score = quality_score * 100
 
         return {"quality_score": quality_score}
 
