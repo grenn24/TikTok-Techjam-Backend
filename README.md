@@ -52,7 +52,9 @@ Open 2 terminal windows
 - Port 8001: ML Server
 
 ### Commands
-Train ML Model: python train_model.py
+Train ML Model:  
+- python train_content_quality_model.py
+- python train_compliance_model.py
 
 ### Architecture
 Multi-Stream Reward Distribution:  

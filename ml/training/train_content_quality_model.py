@@ -4,6 +4,7 @@ import lightgbm as lgb
 from sklearn.preprocessing import MinMaxScaler
 
 
+
 def fit_scaler(X):
     """
     Fit a MinMaxScaler to your training data and save it.
@@ -38,5 +39,8 @@ model = lgb.LGBMRegressor(n_estimators=100, learning_rate=0.1)
 model.fit(X, y)
 
 # Save model
-joblib.dump(model, "model/content_quality_model.pkl")
+joblib.dump(model, "../model/content_quality_model.pkl")
 print("Model and scaler saved successfully!")
+
+
+

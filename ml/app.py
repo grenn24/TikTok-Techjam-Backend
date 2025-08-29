@@ -1,11 +1,13 @@
 # app.py
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import tensorflow as tf
 import numpy as np
-from utils import preprocess_features
+from utils import preprocess_features, analyse_video_frame
 import logging
 import joblib
+import cv2
+import os
+
 
 logger = logging.getLogger("uvicorn.error") 
 
@@ -64,3 +66,48 @@ def predict(data: ContentFeatures):
     except Exception as e:
         logger.exception("Error during prediction")
         raise HTTPException(status_code=400, detail=str(e))
+    
+@app.post("/compliance-score")
+async def compliance_score(video: UploadFile = File(...)):
+    """
+    Upload a video and get a compliance score (0-100).
+    """
+    try:
+        # Save uploaded file temporarily
+        tmp_path = f"tmp_{video.filename}"
+        with open(tmp_path, "wb") as f:
+            f.write(await video.read())
+
+        # Open video with OpenCV
+        cap = cv2.VideoCapture(tmp_path)
+        if not cap.isOpened():
+            raise HTTPException(status_code=400, detail="Could not open video")
+
+        frame_scores = []
+        frame_count = 0
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            # Sample every 10th frame for speed
+            if frame_count % 10 == 0:
+                score = analyse_video_frame(frame)
+                frame_scores.append(score)
+
+            frame_count += 1
+
+        cap.release()
+        os.remove(tmp_path)
+
+        if not frame_scores:
+            raise HTTPException(status_code=400, detail="No frames analyzed")
+
+        # Average score across frames and convert to 0-100
+        compliance_score = float(np.mean(frame_scores) * 100)
+
+        return {"complianceScore": compliance_score}
+
+    except Exception as e:
+        logger.exception("Error during compliance scoring")
+        raise HTTPException(status_code=500, detail=str(e))
