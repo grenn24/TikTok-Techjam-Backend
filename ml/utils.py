@@ -1,21 +1,22 @@
-# utils.py
 import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+import joblib
 
-def preprocess_features(features: list[float]) -> np.ndarray:
+# Example: preprocessor for numeric features
+scaler = MinMaxScaler()
+
+def fit_scaler(X):
+    global scaler
+    scaler.fit(X)
+    joblib.dump(scaler, "model/scaler.pkl")
+
+def preprocess_features(features: list):
     """
-    Preprocess input features for the ML model.
-
-    Example preprocessing:
-    - Convert list to numpy array
-    - Normalize or scale if needed
-    - Fill missing values (optional)
+    Input: list of numeric features
+    Output: scaled numpy array ready for ML
     """
-
-    # Convert to numpy array
-    x = np.array(features, dtype=np.float32)
-
-    # Example: simple normalization to 0-1 range
-    if np.max(x) > 0:
-        x = x / np.max(x)
-
-    return x
+    global scaler
+    if not scaler:
+        scaler = joblib.load("model/scaler.pkl")
+    features = np.array(features, dtype=np.float32).reshape(1, -1)
+    return scaler.transform(features)

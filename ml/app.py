@@ -15,8 +15,13 @@ except Exception as e:
     model = None
 
 # Input schema
-class Features(BaseModel):
-    features: list[float]
+class ContentFeatures(BaseModel):
+    likes: int
+    shares: int
+    comments: int
+    watchTime: float  # in seconds
+    contentLength: float  # in seconds
+    creatorReputation: float  # e.g., 0-1
 
 # Health check endpoint
 @app.get("/health")
@@ -24,20 +29,29 @@ def health_check():
     return {"status": "ok", "model_loaded": model is not None}
 
 # Prediction endpoint
-@app.post("/predict")
-def predict(data: Features):
+@app.post("/content-quality")
+def predict(data: ContentFeatures):
     if model is None:
         raise HTTPException(status_code=500, detail="Model not loaded")
 
     try:
-        # Preprocess features
-        x = preprocess_features(data.features)
+        # Convert to feature vector
+        features_list = [
+            data.likes,
+            data.shares,
+            data.comments,
+            data.watchTime,
+            data.contentLength,
+            data.creatorReputation,
+        ]
+        x = preprocess_features(features_list)
         x = np.array([x], dtype=np.float32)
 
-        # Make prediction
+        # Predict content quality / reward multiplier
         pred = model.predict(x)
-        reward_multiplier = float(pred[0][0])
+        quality_score = float(pred[0][0])
 
-        return {"reward_multiplier": reward_multiplier}
+        return {"quality_score": quality_score}
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

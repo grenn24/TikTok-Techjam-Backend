@@ -4,18 +4,17 @@ import { PrismaClient } from "@prisma/client";
 class GiftService {
 	prisma = new PrismaClient();
 	async sendGift(data: {
-		fromId: string;
-		toId: string;
-		contentId?: string;
+		creatorId: string;
+		consumerId: string;
+		contentId: string;
 		amount: number;
 	}) {
-		const { fromId, toId, contentId, amount } = data;
-
+		const { creatorId, consumerId, contentId, amount } = data;
 		// 1. Create the transaction
 		const transaction = await this.prisma.gift.create({
 			data: {
-				fromId,
-				toId,
+				creatorId,
+				consumerId,
 				contentId,
 				amount,
 				status: "COMPLETED",
@@ -24,7 +23,7 @@ class GiftService {
 
 		// 2. Update recipient wallet balance
 		await this.prisma.user.update({
-			where: { id: toId },
+			where: { id: creatorId },
 			data: { walletBalance: { increment: amount } },
 		});
 
@@ -36,9 +35,9 @@ class GiftService {
 
 		// 4. Create the hash for this new entry
 		const logData = {
-			userId: fromId,
+			userId: consumerId,
 			action: "SEND_GIFT",
-			description: `Sent ${amount} tokens to user ${toId} for content ${
+			description: `Sent ${amount} tokens to user ${creatorId} for content ${
 				contentId ?? "N/A"
 			}`,
 			amount,
@@ -62,8 +61,8 @@ class GiftService {
 	// List gifts sent by a user
 	async listSentGifts(userId: string) {
 		return this.prisma.gift.findMany({
-			where: { fromId: userId },
-			include: { to: true, content: true },
+			where: { consumerId: userId },
+			include: { creator: true, content: true },
 			orderBy: { createdAt: "desc" },
 		});
 	}
@@ -71,8 +70,8 @@ class GiftService {
 	// List gifts received by a creator
 	async listReceivedGifts(userId: string) {
 		return this.prisma.gift.findMany({
-			where: { toId: userId },
-			include: { from: true, content: true },
+			where: { creatorId: userId },
+			include: { consumer: true, content: true },
 			orderBy: { createdAt: "desc" },
 		});
 	}

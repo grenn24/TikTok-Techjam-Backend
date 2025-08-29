@@ -20,6 +20,7 @@ model User {
   rewards      Reward?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  reputation Float @default(0) // from 0 - 1
 }
 
 enum Role {
@@ -39,6 +40,11 @@ model Content {
   gifts Gift[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  likes BigInt @default(0)
+  shares BigInt @default(0)
+  commentCount BigInt @default(0)
+  watchTime Float @default(0)  // in seconds
+  length Float @default(0) // in seconds
 }
 
 enum ContentType {
@@ -48,12 +54,12 @@ enum ContentType {
 
 model Gift {
   id        String   @id @default(cuid())
-  from      User     @relation("SentGifts", fields: [fromId], references: [id])
-  fromId    String
-  to        User     @relation("ReceivedGifts", fields: [toId], references: [id])
-  toId      String
-  content   Content? @relation(fields: [contentId], references: [id])
-  contentId String?
+  consumer      User     @relation("SentGifts", fields: [consumerId], references: [id])
+  consumerId    String
+  creator        User     @relation("ReceivedGifts", fields: [creatorId], references: [id])
+  creatorId      String
+  content   Content @relation(fields: [contentId], references: [id])
+  contentId String
   amount    Float
   status    GiftStatus @default(PENDING)
   createdAt DateTime @default(now())

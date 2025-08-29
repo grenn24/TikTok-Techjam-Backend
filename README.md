@@ -13,9 +13,11 @@
 /fraud
 
 ### Setup  
+Open 2 terminal windows  
 Backend:  
 - Rename .env.development to .env
 - npm install
+- npm run prestart (build prisma client)
 - npm run dev  
 
 ML:  

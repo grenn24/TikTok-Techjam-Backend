@@ -1,57 +1,35 @@
 import { PrismaClient } from "@prisma/client";
+import contentService from "./content";
 
 class RewardService {
 	prisma = new PrismaClient();
 
 	// Calculate rewards for a creator
-	async calculateRewards(creatorId: string) {
-		// Fetch all received gifts
+	async getTotalRewards(creatorId: string) {
+		// Fetch all received gifts for that creator
 		const gifts = await this.prisma.gift.findMany({
-			where: { toId: creatorId },
+			where: { creatorId: creatorId },
 			include: { content: true },
 		});
-
-		// Calculate rewards based on gift amount and content quality
-		let totalReward = 0;
-		const rewardDetails = gifts.map((gift) => {
-			const qualityMultiplier = gift.content?.qualityScore || 1; // default multiplier
-			const reward = gift.amount * qualityMultiplier;
-			totalReward += reward;
-
-			return {
-				transactionId: gift.id,
-				contentId: gift.contentId,
-				amount: gift.amount,
-				qualityScore: gift.content?.qualityScore,
-				reward,
-			};
+		const contents = await this.prisma.content.findMany({
+			where: { creatorId: creatorId },
 		});
-
-		// Store reward history
-		for (const detail of rewardDetails) {
-			await this.prisma.reward.create({
-				data: {
-					amount: detail.reward,
-					creatorId,
-				},
-			});
+		// Calculate rewards based on gift amount (45%) and creator fund for content quality (10%)
+		let totalReward = 0;
+		for (const gift of gifts) {
+			totalReward += gift.amount * 0.45;
+		}
+		for (const content of contents) {
+			let qualityScore = content.qualityScore;
+			if (qualityScore === 0) {
+				qualityScore = await contentService.generateContentQualityScore(
+					content.id
+				);
+			}
+			totalReward += qualityScore * 0.1;
 		}
 
-		return {
-			totalReward,
-			rewardDetails,
-		};
-	}
-
-	// Get total rewards for a creator
-	async getTotalRewards(creatorId: string) {
-		const result = await this.prisma.reward.aggregate({
-			_sum: {
-				amount: true,
-			},
-			where: { creatorId },
-		});
-		return result._sum.amount || 0;
+		return totalReward;
 	}
 
 	// List reward history for a creator

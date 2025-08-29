@@ -1,15 +1,12 @@
 import { PrismaClient } from "@prisma/client";
+import axios from "axios";
+import config from "config";
 
 class ContentService {
 	prisma = new PrismaClient();
 
 	// Create/upload new content
-	async createContent(data: {
-		creatorId: string;
-		type: "VIDEO" | "LIVE";
-		title: string;
-		description?: string;
-	}) {
+	async createContent(data) {
 		const content = await this.prisma.content.create({
 			data,
 		});
@@ -50,13 +47,27 @@ class ContentService {
 		return updatedContent;
 	}
 
-	// Update content quality score (manual or ML)
-	async updateScore(contentId: string, score: number) {
-		const updatedContent = await this.prisma.content.update({
-			where: { id: contentId },
-			data: { qualityScore: score },
-		});
-		return updatedContent;
+	async generateContentQualityScore(contentId: string): Promise<number> {
+		try {
+			const content = await this.getContent(contentId);
+			const features = {
+				likes: content.likes,
+				shares: content.shares,
+				comments: content.commentCount,
+				watchTime: content.watchTime,
+				contentLength: content.length,
+				creatorReputation: content.creator.reputation,
+			};
+
+			const response = await axios.post(
+				`http://localhost:${config.get("ML_PORT")}/content-quality`,
+				features
+			);
+			return response.data.quality_score;
+		} catch (err) {
+			console.error("ML service error:", err);
+			return 1; // default multiplier if ML fails
+		}
 	}
 }
 

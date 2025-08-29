@@ -5,13 +5,7 @@ class ContentController {
 	// Upload new content
 	async uploadContent(req: Request, res: Response) {
 		try {
-			const { creatorId, type, title, description } = req.body;
-			const content = await contentService.createContent({
-				creatorId,
-				type,
-				title,
-				description,
-			});
+			const content = await contentService.createContent(req.body);
 			res.status(201).json(content);
 		} catch (err: any) {
 			res.status(400).json({ error: err.message });
@@ -50,21 +44,6 @@ class ContentController {
 			const updatedContent = await contentService.updateContent(
 				contentId,
 				updates
-			);
-			res.json(updatedContent);
-		} catch (err: any) {
-			res.status(400).json({ error: err.message });
-		}
-	}
-
-	// Update content quality score (manual or ML)
-	async updateContentScore(req: Request, res: Response) {
-		try {
-			const contentId = req.params.id;
-			const { score } = req.body;
-			const updatedContent = await contentService.updateScore(
-				contentId,
-				score
 			);
 			res.json(updatedContent);
 		} catch (err: any) {

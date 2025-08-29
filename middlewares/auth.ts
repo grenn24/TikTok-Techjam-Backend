@@ -7,7 +7,6 @@ export const auth =
 	(role: "User" | "Admin") =>
 	(request: Request, response: Response, next: NextFunction) => {
 		const accessToken = request.cookies["X-Access-Token"] || request.headers["X-Access-Token"];
-		console.log(accessToken);
 		// Access token missing (401 unauthorised)
 		if (!accessToken) {
 			response.status(401).send({
@@ -19,7 +18,6 @@ export const auth =
 
 		// Check if access token is valid
 		const payload = authService.validateToken(accessToken, "accessToken");
-		console.log(payload);
 		if (!payload) {
 			response.status(401).send({
 				status: "INVALID_ACCESS_TOKEN",
