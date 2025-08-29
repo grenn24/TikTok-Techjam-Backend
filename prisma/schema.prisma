@@ -89,3 +89,14 @@ enum FraudType {
   FRAUD
   AML
 }
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String   // e.g. "REWARD_TRANSFER", "WITHDRAWAL", "FRAUD_FLAG"
+  amount      Float?   // optional, only for value transfers
+  description String?
+  prevHash    String?  // hash of the previous record
+  hash        String   // current entry hash (prevHash + row data)
+  createdAt   DateTime @default(now())
+}

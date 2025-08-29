@@ -10,7 +10,7 @@ import routes from "./startup/routes";
 const startupDebug = createDebug("app:startup");
 const app = express();
 
-logging()
+logging();
 startupConfig();
 middlewares(app);
 routes(app);
