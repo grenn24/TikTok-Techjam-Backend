@@ -1,11 +1,16 @@
 # TikTok Techjam Backend
 
 ### Routes
-- /user
-- /content
-- /reward
-- /gift
-- /fraud
+- Create / update user
+/user
+- Post live videos
+/content
+- Get reward breakdown for creators
+/reward
+- Send gifts to creators
+/gift
+- Report fraud activity
+/fraud
 
 ### Setup
 - Rename .env.development to .env
