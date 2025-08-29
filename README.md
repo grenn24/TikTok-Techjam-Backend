@@ -25,12 +25,13 @@ Add this to custom-environment-variables.json:
     "SECRET_KEY": "SECRET_KEY"
 }
 Add this to development.json: 
-```python 
+```json 
 {
 	"NODE_ENV": "development",
 	"PORT": 3000,
 	"DATABASE_URL": "postgres://<password>@localhost:5433/<database-name>",
 }
+```
 
 Open 2 terminal windows  
 2. Backend:  
