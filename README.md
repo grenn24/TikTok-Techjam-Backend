@@ -12,7 +12,7 @@
 - Report fraud activity  
 /fraud
 
-### Setup  
+### Setup Locally  
 1. Create a /config directory with the following files:
 - custom-environment-variables.json
 - development.json
@@ -56,6 +56,9 @@ Train ML Model:
 - python train_content_quality_model.py
 - python train_compliance_model.py
 
-### Architecture
+### ML Architecture
 Multi-Stream Reward Distribution:  
-Creator Reward =  Gifts (30% weight) + Advertisement Revenue (35% weight based on views and watch time) + Creator Fund (20% weight based on AI content quality score)
+Creator Reward =  Gifts (30% weight) + Advertisement Revenue (35% weight based on views and watch time) + Creator Fund (20% weight based on AI content quality score)  
+
+AI Generated Content Quality:  
+Overall Content Quality Score = Content Quality (75% weight)  + Community Compliance Score (25% weight)
