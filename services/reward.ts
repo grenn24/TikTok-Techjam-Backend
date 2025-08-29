@@ -6,7 +6,7 @@ class RewardService {
 	// Calculate rewards for a creator
 	async calculateRewards(creatorId: string) {
 		// Fetch all received gifts
-		const gifts = await this.prisma.transaction.findMany({
+		const gifts = await this.prisma.gift.findMany({
 			where: { toId: creatorId },
 			include: { content: true },
 		});
@@ -31,10 +31,8 @@ class RewardService {
 		for (const detail of rewardDetails) {
 			await this.prisma.reward.create({
 				data: {
+					amount: detail.reward,
 					creatorId,
-					transactionId: detail.transactionId,
-					contentId: detail.contentId,
-					rewardAmount: detail.reward,
 				},
 			});
 		}
@@ -49,11 +47,11 @@ class RewardService {
 	async getTotalRewards(creatorId: string) {
 		const result = await this.prisma.reward.aggregate({
 			_sum: {
-				rewardAmount: true,
+				amount: true,
 			},
 			where: { creatorId },
 		});
-		return result._sum.rewardAmount || 0;
+		return result._sum.amount || 0;
 	}
 
 	// List reward history for a creator

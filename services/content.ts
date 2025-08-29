@@ -20,7 +20,7 @@ class ContentService {
 	async getContent(contentId: string) {
 		const content = await this.prisma.content.findUnique({
 			where: { id: contentId },
-			include: { creator: true, transactions: true },
+			include: { creator: true, gifts: true },
 		});
 		if (!content) throw new Error("Content not found");
 		return content;

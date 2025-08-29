@@ -1,8 +1,8 @@
+import { createHash } from "crypto";
 import { PrismaClient } from "@prisma/client";
 
 class GiftService {
 	prisma = new PrismaClient();
-
 	async sendGift(data: {
 		fromId: string;
 		toId: string;
@@ -18,7 +18,7 @@ class GiftService {
 				toId,
 				contentId,
 				amount,
-				status: "COMPLETED", // or PENDING if approval needed
+				status: "COMPLETED",
 			},
 		});
 
@@ -28,20 +28,31 @@ class GiftService {
 			data: { walletBalance: { increment: amount } },
 		});
 
-		// 3. Write to AuditLog (immutable ledger)
+		// 3. Get the latest audit log to get prevHash
+		const latestLog = await this.prisma.auditLog.findFirst({
+			orderBy: { createdAt: "desc" },
+		});
+		const prevHash = latestLog?.hash || "";
+
+		// 4. Create the hash for this new entry
+		const logData = {
+			userId: fromId,
+			action: "SEND_GIFT",
+			description: `Sent ${amount} tokens to user ${toId} for content ${
+				contentId ?? "N/A"
+			}`,
+			amount,
+			prevHash,
+		};
+		const hash = createHash("sha256")
+			.update(JSON.stringify(logData))
+			.digest("hex");
+
+		// 5. Write to AuditLog
 		await this.prisma.auditLog.create({
 			data: {
-				userId: fromId, // who initiated the action
-				action: "SEND_GIFT",
-				description: `Sent ${amount} tokens to user ${toId} for content ${
-					contentId ?? "N/A"
-				}`,
-				metadata: {
-					transactionId: transaction.id,
-					toId,
-					contentId,
-					amount,
-				},
+				...logData,
+				hash,
 			},
 		});
 

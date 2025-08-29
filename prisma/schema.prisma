@@ -17,8 +17,7 @@ model User {
   contents     Content[]
   giftsSent     Gift[] @relation("SentGifts")
   giftsReceived Gift[] @relation("ReceivedGifts")
-  rewards      Reward[]
-  fraudLogs    FraudLog[]
+  rewards      Reward?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -59,6 +58,7 @@ model Gift {
   status    GiftStatus @default(PENDING)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  fraudLog FraudLog[]
 }
 
 enum GiftStatus {
@@ -70,16 +70,17 @@ enum GiftStatus {
 model Reward {
   id        String   @id @default(cuid())
   creator   User     @relation(fields: [creatorId], references: [id])
-  creatorId String
-  points    Float
-  reason    String
+  creatorId String   @unique
+  amount    Float
+  reason    String?
   createdAt DateTime @default(now())
 }
 
+// store suspicious gift transactions
 model FraudLog {
   id        String   @id @default(cuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
+  gift      Gift     @relation(fields: [giftId], references: [id])
+  giftId    String   
   type      FraudType
   description String
   createdAt DateTime @default(now())

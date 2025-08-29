@@ -1,3 +1,4 @@
-import AuthService from "../services/auth";
+class AuthController {}
 
-const authService = new AuthService();
+const authController = new AuthController();
+export default authController;

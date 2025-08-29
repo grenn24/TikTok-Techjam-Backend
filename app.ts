@@ -1,7 +1,7 @@
-import express from "express";
 import "dotenv/config";
 import config from "config";
 import createDebug from "debug";
+import express from "express";
 import startupConfig from "./startup/config";
 import logging from "./startup/logging";
 import middlewares from "./startup/middlewares";

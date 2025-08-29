@@ -6,55 +6,45 @@ class FraudService {
 	// Report suspicious activity
 	async report(transactionId: string, reason: string) {
 		// Optional: Check if transaction exists
-		const transaction = await this.prisma.transaction.findUnique({
+		const transaction = await this.prisma.gift.findUnique({
 			where: { id: transactionId },
 		});
 		if (!transaction) throw new Error("Transaction not found");
 
 		// Log a fraud report
-		const report = await this.prisma.fraudReport.create({
+		const report = await this.prisma.fraudLog.create({
 			data: {
-				transactionId,
-				reason,
-				status: "PENDING", // could be REVIEWED later
+				giftId: transaction.id, // link to sender
+				type: "FRAUD", // enum: FRAUD or AML
+				description: reason, // use description instead of reason
 			},
-		});
-
-		// Optionally flag the user
-		await this.prisma.user.update({
-			where: { id: transaction.fromId },
-			data: { isFlagged: true },
 		});
 
 		return report;
 	}
 
-	// List all flagged transactions or reports
+	// List all flagged transactions
 	async listFlags() {
-		return this.prisma.fraudReport.findMany({
+		return this.prisma.fraudLog.findMany({
 			orderBy: { createdAt: "desc" },
-			include: { transaction: true },
+			include: { gift: true },
 		});
 	}
 
 	// Check a specific transaction for fraud
 	async checkTransaction(transactionId: string) {
-		const transaction = await this.prisma.transaction.findUnique({
+		const transaction = await this.prisma.gift.findUnique({
 			where: { id: transactionId },
 			include: { from: true, to: true },
 		});
 		if (!transaction) throw new Error("Transaction not found");
 
-		// Simple check: flagged user or suspicious amount
-		const flagged = transaction.from.isFlagged || transaction.amount > 1000; // example threshold
-
-		return {
-			transaction,
-			flagged,
-			reason: flagged
-				? "High amount or flagged sender"
-				: "No issues detected",
-		};
+		const fraudLog = await this.prisma.fraudLog.findFirst({
+			where: { giftId: transactionId },
+		});
+		if (fraudLog) {
+			return fraudLog;
+		}
 	}
 }
 
