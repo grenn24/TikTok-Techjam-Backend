@@ -1,15 +1,15 @@
 # TikTok Techjam Backend
 
 ### Routes
-- Create / update user
+- Create /update user  
 /user
-- Post live videos
+- Post live videos  
 /content
-- Get reward breakdown for creators
+- Get reward breakdown for creators  
 /reward
-- Send gifts to creators
+- Send gifts to creators  
 /gift
-- Report fraud activity
+- Report fraud activity  
 /fraud
 
 ### Setup
