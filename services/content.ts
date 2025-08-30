@@ -3,50 +3,6 @@ import axios from "axios";
 import config from "config";
 import userService from "./user";
 
-interface ContentQuality {
-	engagement: {
-		score: number;
-		feedback: string;
-	};
-	delivery: {
-		score: number;
-		feedback: string;
-	};
-	education: {
-		score: number;
-		feedback: string;
-	};
-	communityGuidelines: {
-		score: number;
-		feedback: string;
-	};
-	audioVisual: {
-		score: number;
-		feedback: string;
-	};
-}
-const CONTENT_QUALITY_TMP = {
-	engagement: {
-		score: 35,
-		feedback: "asgager",
-	},
-	delivery: {
-		score: 0,
-		feedback: "weg",
-	},
-	education: {
-		score: 35,
-		feedback: "weg",
-	},
-	communityGuidelines: {
-		score: 23,
-		feedback: "wEG",
-	},
-	audioVisual: {
-		score: 35,
-		feedback: "WEWE",
-	},
-};
 class ContentService {
 	prisma = new PrismaClient();
 
@@ -58,9 +14,16 @@ class ContentService {
 				...data,
 			},
 		});
+		const contentQuality = await contentService.generateQualityScore(
+			content.id
+		);
+		const engagement = await contentService.generateEngagementScore(
+			content.id
+		);
 		return {
 			...content,
-			contentQuality: CONTENT_QUALITY_TMP,
+			contentQuality,
+			engagement,
 		};
 	}
 
@@ -71,9 +34,17 @@ class ContentService {
 			include: { creator: true, gifts: true },
 		});
 		if (!content) throw new Error("Content not found");
+
+		const contentQuality = await contentService.generateQualityScore(
+			content.id
+		);
+		const engagement = await contentService.generateEngagementScore(
+			content.id
+		);
 		return {
 			...content,
-			contentQuality: CONTENT_QUALITY_TMP,
+			contentQuality,
+			engagement,
 		};
 	}
 
@@ -86,10 +57,20 @@ class ContentService {
 			where: filters || {},
 			include: { creator: true },
 		});
-		return contentList.map((content) => ({
-			...content,
-			contentQuality: CONTENT_QUALITY_TMP,
-		}));
+		return await Promise.all(
+			contentList.map(async (content) => {
+				const contentQuality =
+					await contentService.generateQualityScore(content.id);
+				const engagement = await contentService.generateEngagementScore(
+					content.id
+				);
+				return {
+					...content,
+					contentQuality,
+					engagement,
+				};
+			})
+		);
 	}
 
 	// Update content info

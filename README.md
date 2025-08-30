@@ -18,6 +18,8 @@ GET /content
 POST /content
 - Get content engagement score
 GET /content/:contentId/engagement-score
+- Get content quality score
+GET /content/:contentId/quality-score
 
 - Get reward breakdown for creators  
 GET /reward/:creatorId/breakdown

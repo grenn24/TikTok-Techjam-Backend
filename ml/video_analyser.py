@@ -17,8 +17,13 @@ except Exception as e:
     print(f"[ERROR] Failed to load model: {e}")
     sys.exit(1)
 
-# Categories
-CATEGORIES = ["CommunityGuidelines", "Education", "Delivery", "AudioVisual"]
+# Categories → mapping to keys you want in final output
+CATEGORY_KEYS = {
+    "CommunityGuidelines": "communityGuidelines",
+    "Education": "education",
+    "Delivery": "delivery",
+    "AudioVisual": "audioVisual"
+}
 
 def analyze_video(video_path):
     if not os.path.exists(video_path):
@@ -70,21 +75,21 @@ def analyze_video(video_path):
     video_scores = scores.mean(axis=0)
     print(f"[INFO] Video scores (averaged per category): {video_scores}")
 
-    # Generate targeted feedback
-    feedback = {}
-    for i, category in enumerate(CATEGORIES):
-        score = video_scores[i]
-        if score < 0.5:
-            feedback[category] = f"Needs improvement in {category}."
-        else:
-            feedback[category] = f"Good {category}."
+    # Build structured response
+    result = {}
+    for i, (cat, key) in enumerate(CATEGORY_KEYS.items()):
+        if i >= len(video_scores):
+            print(f"[WARN] Skipping {cat} because model only returned {len(video_scores)} outputs.")
+            continue
+        score = float(video_scores[i])
+        feedback = f"Good {cat}." if score >= 0.5 else f"Needs improvement in {cat}."
+        result[key] = {
+            "score": round(score * 100, 2),  # scale to 0–100 like your TMP
+            "feedback": feedback
+        }
 
-    print(f"[INFO] Feedback generated: {feedback}")
-
-    return {
-        "scores": dict(zip(CATEGORIES, video_scores.tolist())),
-        "feedback": feedback
-    }
+    print(f"[INFO] Final structured result: {result}")
+    return result
 
 # Example usage:
 if __name__ == "__main__":
