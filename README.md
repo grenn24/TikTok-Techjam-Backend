@@ -2,7 +2,7 @@
 
 ### API Routes
 - Create user  
-POST /user
+POST /auth/signup
 - Update user
 PUT /user
 - Post live videos  
@@ -41,13 +41,15 @@ Add this to development.json:
 }
 ```
 
-2. Backend:  
+2. Check that u have psql installed (https://www.postgresql.org/download/windows/)
+
+3. Backend:  
 - Rename .env.development to .env
 - npm install
 - npm run prestart (build prisma client)
 - npm run dev  
 
-3. ML:  
+4. ML:  
 - python -m venv venv
 - source venv/bin/activate  # Linux/Mac
 - source venv/Scripts/activate  # Windows
