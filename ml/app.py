@@ -55,9 +55,11 @@ class ContentFeatures(BaseModel):
 def health_check():
     return {"status": "ok", "model_loaded":  engagement_model is not None and anomaly_model is not None and content_quality_score is not None}
 
+
+
 # Engagement Score
 @app.post("/content/engagement-score")
-def predict(data: ContentFeatures):
+def getEngagementScore(data: ContentFeatures):
     if engagement_model is None:
         raise HTTPException(status_code=500, detail="Content quality model not loaded")
 
@@ -90,31 +92,40 @@ def predict(data: ContentFeatures):
         raise HTTPException(status_code=400, detail=str(e))
     
 
-@app.post("/content/content-quality-score")
-async def content_quality_score(video_url: str):
-    """
-    Download a video from a URL, analyze frame by frame,
-    and return compliance scores and feedback per category.
-    """
+class QualityScoreRequest(BaseModel):
+    url: str
+@app.post("/content/quality-score")
+async def getQualityScore(request: QualityScoreRequest):
+    url = request.url
+    print(f"[Step 1] Received video URL: {url}")
+
     try:
-        # Download video
-        tmp_path = f"tmp_video.mp4"
-        resp = requests.get(video_url, stream=True)
+        # Step 2: Download video
+        tmp_path = "tmp_video.mp4"
+        print(f"[Step 2] Downloading video to temporary path: {tmp_path}")
+        resp = requests.get(url, stream=True)
         if resp.status_code != 200:
+            print(f"[Error] Failed to download video, status code: {resp.status_code}")
             raise HTTPException(status_code=400, detail="Failed to download video")
+
         with open(tmp_path, "wb") as f:
             for chunk in resp.iter_content(chunk_size=8192):
                 f.write(chunk)
+        print(f"[Step 2] Download complete")
 
-        # Analyze video
+        # Step 3: Analyze video
+        print(f"[Step 3] Starting video analysis")
         result = analyze_video(tmp_path)
+        print(f"[Step 3] Video analysis complete")
 
-        # Remove temp file
+        # Step 4: Clean up temp file
         os.remove(tmp_path)
+        print(f"[Step 4] Temporary file removed")
 
         return result
 
     except Exception as e:
+        print(f"[Error] Exception occurred: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     
 @app.post("/audit/anomaly-detection")

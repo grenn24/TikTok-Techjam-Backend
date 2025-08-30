@@ -18,12 +18,9 @@ except Exception as e:
     sys.exit(1)
 
 # Categories
-CATEGORIES = ["CommunityGuidelines", "Engagement", "Education", "Delivery", "AudioVisual"]
+CATEGORIES = ["CommunityGuidelines", "Education", "Delivery", "AudioVisual"]
 
 def analyze_video(video_path):
-    """
-    Analyze a video frame by frame and return category scores and feedback.
-    """
     if not os.path.exists(video_path):
         print(f"[ERROR] Video file not found: {video_path}")
         return None
@@ -34,19 +31,25 @@ def analyze_video(video_path):
         return None
 
     frames = []
+    frame_count = 0
+    print(f"[INFO] Starting to read frames from video: {video_path}")
     while True:
         ret, frame = cap.read()
         if not ret:
             break
+        frame_count += 1
         try:
-            frame = cv2.resize(frame, (128,128))
+            frame = cv2.resize(frame, (128, 128))
             frame = frame.astype(np.float32) / 255.0  # normalize
             frames.append(frame)
+            if frame_count % 10 == 0:
+                print(f"[INFO] Processed {frame_count} frames...")
         except Exception as e:
             print(f"[WARN] Skipping a frame due to error: {e}")
             continue
 
     cap.release()
+    print(f"[INFO] Total frames processed: {len(frames)}")
 
     if len(frames) == 0:
         print("[ERROR] No valid frames found in video")
@@ -56,13 +59,16 @@ def analyze_video(video_path):
 
     # Predict per-frame scores
     try:
+        print("[INFO] Running model predictions on frames...")
         scores = model.predict(frames, verbose=0)  # shape: (num_frames, num_categories)
+        print(f"[INFO] Prediction complete. Shape: {scores.shape}")
     except Exception as e:
         print(f"[ERROR] Prediction failed: {e}")
         return None
 
     # Aggregate per category
     video_scores = scores.mean(axis=0)
+    print(f"[INFO] Video scores (averaged per category): {video_scores}")
 
     # Generate targeted feedback
     feedback = {}
@@ -72,6 +78,8 @@ def analyze_video(video_path):
             feedback[category] = f"Needs improvement in {category}."
         else:
             feedback[category] = f"Good {category}."
+
+    print(f"[INFO] Feedback generated: {feedback}")
 
     return {
         "scores": dict(zip(CATEGORIES, video_scores.tolist())),

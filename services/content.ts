@@ -89,7 +89,7 @@ class ContentService {
 		return contentList.map((content) => ({
 			...content,
 			contentQuality: CONTENT_QUALITY_TMP,
-		}))
+		}));
 	}
 
 	// Update content info
@@ -129,6 +129,29 @@ class ContentService {
 				features
 			);
 			return response.data.engagementScore;
+		} catch (err) {
+			console.error("ML service error:", err);
+			return 1; // default multiplier if ML fails
+		}
+	}
+
+	async generateQualityScore(contentId: string) {
+		try {
+			const content = await this.getContent(contentId);
+
+			if (!content.url) {
+				return 1;
+			}
+
+			const response = await axios.post(
+				`http://localhost:${config.get(
+					"ML_PORT"
+				)}/content/quality-score`,
+				{
+					url: content.url,
+				}
+			);
+			return response.data;
 		} catch (err) {
 			console.error("ML service error:", err);
 			return 1; // default multiplier if ML fails
