@@ -1,20 +1,22 @@
 # TikTok Techjam Backend
 
-### Routes
-- Create /update user  
-/user
+### API Routes
+- Create user  
+POST /user
+- Update user
+PUT /user
 - Post live videos  
 POST /content
 - Get content quality  
-/content/quality
+GET /content/:contentId/quality
 - Get reward breakdown for creators  
-/reward/:creatorId/breakdown
+GET /reward/:creatorId/breakdown
 - Get reward totals for creators
-/reward/:creatorId/total
+GET /reward/:creatorId/total
 - Send gifts to creators  
-/gift
+POST /gift
 - Manually Report fraud activity  
-/fraud
+POST /fraud
 
 ### Setup Locally  
 1. Create a /config directory with the following files:
