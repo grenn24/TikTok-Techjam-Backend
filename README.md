@@ -95,7 +95,7 @@ Can also use existing pretrained models
 
 ### ML Architecture
 Multi-Stream Reward Distribution:  
-Creator Reward =  Consumer Gifts (40% weight) + Advertisement Revenue (30% weight based on views and watch time) + Creator Fund (30% weight based on AI content quality score)    
+Creator Reward =  Consumer Gifts (40% weight) + Advertisement Revenue (30% weight based on views and watch time) + Creator Fund (30% weight based on AI overall content quality score)    
 
 AI Generated Content Quality:  
 Content Quality Score = Content Engagement Score (50% weight)  + Content Quality Score (50% weight)

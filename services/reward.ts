@@ -52,7 +52,10 @@ class RewardService {
 		}
 		await this.prisma.user.update({
 			where: { id: creatorId },
-			data: { averageContentQuality: averageEngagementScore },
+			data: {
+				averageContentEngagement: averageEngagementScore,
+				averageContentQuality: averageQualityScore,
+			},
 		});
 
 		const otherUsers = await this.prisma.user.findMany({
@@ -61,6 +64,11 @@ class RewardService {
 		for (const user of otherUsers) {
 			if (user.averageContentQuality) {
 				totalEngagementScore += user.averageContentQuality;
+			}
+		}
+		for (const user of otherUsers) {
+			if (user.averageContentEngagement) {
+				totalQualityScore += user.averageContentEngagement;
 			}
 		}
 
