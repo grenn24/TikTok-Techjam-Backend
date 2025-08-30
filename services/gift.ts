@@ -115,7 +115,7 @@ class GiftService {
 			.update(JSON.stringify(logData))
 			.digest("hex");
 
-		await this.prisma.auditLog.create({
+		const giftLog = await this.prisma.auditLog.create({
 			data: {
 				...logData,
 				hash,
@@ -137,17 +137,14 @@ class GiftService {
 			);
 
 			const { anomalies_detected, flagged_entries } = response.data;
-
 			if (anomalies_detected > 0) {
-				// Update all flagged logs
-				for (const entry of flagged_entries) {
+				const flaggedIds = flagged_entries.map((entry) => entry.id);
+				// Update current gift log if its suspicious
+				if (flaggedIds.includes(giftLog.id)) {
 					await this.prisma.auditLog.update({
-						where: { id: entry.id },
+						where: { id: giftLog.id },
 						data: { action: "SUSPICIOUS_GIFTING" },
 					});
-					console.warn(
-						`Anomaly detected for gift transaction ${entry.id}`
-					);
 				}
 			}
 		} catch (err) {

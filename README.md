@@ -30,6 +30,11 @@ POST /gift
 - Manually Report fraud activity  
 POST /fraud
 
+- Get all audit logs
+GET /audit
+- Scan audit logs
+POST /audit/scan
+
 ### Setup Locally  
 1. Create a /config directory with the following files:
 - custom-environment-variables.json

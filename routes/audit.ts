@@ -9,4 +9,6 @@ auditRoutes.use(auth("User"));
 
 auditRoutes.get("/", auditController.getAllAuditLogs.bind(authController));
 
+auditRoutes.post("/scan", auditController.scanAuditLogs.bind(authController));
+
 export default auditRoutes;

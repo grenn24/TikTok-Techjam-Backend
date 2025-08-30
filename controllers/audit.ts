@@ -6,6 +6,11 @@ class AuditController {
 		const auditLogs = await auditService.getAllAuditLogs();
 		res.status(200).json(auditLogs);
 	}
+
+	async scanAuditLogs(req: Request, res: Response) {
+		const auditLogs = await auditService.scanAuditLogs();
+		res.status(200).json(auditLogs);
+	}
 }
 const auditController = new AuditController();
 export default auditController;
