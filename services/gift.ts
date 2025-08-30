@@ -5,14 +5,16 @@ import config from "config";
 
 class GiftService {
 	prisma = new PrismaClient();
-	async sendGift(data: {
-		creatorId: string;
-		consumerId: string;
-		contentId: string;
-		amount: number;
-	}) {
-		const { creatorId, consumerId, contentId, amount } = data;
-
+	async sendGift(
+		user,
+		data: {
+			creatorId: string;
+			contentId: string;
+			amount: number;
+		}
+	) {
+		const { creatorId, contentId, amount } = data;
+		const consumerId = user.id;
 		const DAILY_GIFT_LIMIT = config.get<number>("DAILY_GIFT_LIMIT");
 
 		// Daily Gift Limit Check

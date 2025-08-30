@@ -4,9 +4,9 @@ import giftService from "../services/gift";
 class GiftController {
 	async sendGift(req: Request, res: Response) {
 		try {
-			const { consumerId, creatorId, contentId, amount } = req.body;
-			const transaction = await giftService.sendGift({
-				consumerId,
+			const { creatorId, contentId, amount } = req.body;
+			const user= res.locals.user
+			const transaction = await giftService.sendGift(user, {
 				creatorId,
 				contentId,
 				amount,

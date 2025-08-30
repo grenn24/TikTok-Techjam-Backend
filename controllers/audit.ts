@@ -21,6 +21,13 @@ class AuditController {
 		const flags = await auditService.listFlags();
 		res.status(200).json(flags);
 	}
+
+	// used for sus activity report
+	async flag(req: Request, res: Response) {
+		const user = res.locals.user;
+		const flag = await auditService.flag(req.body, req.params.id, user);
+		res.status(200).json(flag);
+	}
 }
 const auditController = new AuditController();
 export default auditController;

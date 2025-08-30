@@ -15,4 +15,6 @@ auditRoutes.post("/scan", auditController.scanAuditLogs.bind(authController));
 
 auditRoutes.get("/flagged", auditController.listFlags.bind(authController));
 
+auditRoutes.post("/:id/flag", auditController.flag.bind(authController));
+
 export default auditRoutes;
