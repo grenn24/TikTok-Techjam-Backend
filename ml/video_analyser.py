@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from tensorflow.python.keras.models import load_model
+from tensorflow.keras.models import load_model
 import os
 import sys
 import tensorflow as tf
@@ -84,7 +84,7 @@ def analyze_video(video_path):
         score = float(video_scores[i])
         feedback = f"Good {cat}." if score >= 0.5 else f"Needs improvement in {cat}."
         result[key] = {
-            "score": round(score * 100, 2),  # scale to 0–100 like your TMP
+            "score": round(score * 100),  # scale to 0–100 like your TMP
             "feedback": feedback
         }
 

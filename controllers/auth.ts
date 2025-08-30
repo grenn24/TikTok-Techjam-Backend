@@ -62,7 +62,7 @@ class AuthController {
 			res.header("Authorization", `Bearer ${token}`);
 
 			// Return user info (optional) without token in JSON
-			return res.status(201).json(user);
+			return res.status(201).json({...user, token});
 		} catch (err) {
 			console.error(err);
 			return res.status(500).json({ message: "Internal server error" });
@@ -114,7 +114,7 @@ class AuthController {
 
 			res.header("Authorization", `Bearer ${token}`);
 
-			return res.status(200).json(user);
+			return res.status(200).json({...user, token});
 		} catch (err) {
 			console.error(err);
 			return res.status(500).json({ message: "Internal server error" });
