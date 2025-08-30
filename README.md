@@ -19,19 +19,22 @@
 - production.json
 
 Add this to custom-environment-variables.json:  
+```json
 {
     "PORT": "PORT",
     "ML_PORT": "ML_PORT",
     "SECRET_KEY": "SECRET_KEY"
 }
-Add this to development.json:  
+```
+Add this to development.json: 
+```json 
 {
 	"NODE_ENV": "development",
 	"PORT": 3000,
 	"DATABASE_URL": "postgres://<password>@localhost:5433/<database-name>",
 }
+```
 
-Open 2 terminal windows  
 2. Backend:  
 - Rename .env.development to .env
 - npm install
@@ -42,19 +45,19 @@ Open 2 terminal windows
 - python -m venv venv
 - source venv/bin/activate  # Linux/Mac
 - source venv/Scripts/activate  # Windows
+- change Python interpreter to the one located inside venv/Scripts
 - pip install -r requirements.txt
 - uvicorn app:app --reload --log-level debug --port 8001
-- change Python interpreter to the one located inside venv/Scripts
-- python train_model.py  # train model or use the existing model
 
 ### Ports
-- Port 3000: Backend API
-- Port 8001: ML Server
+- 3000: Backend API
+- 8001: ML Server
 
-### Commands
-Train ML Model:  
-- python train_content_quality_model.py
-- python train_compliance_model.py
+### Training ML Models 
+- Quality: python train_content_quality_model.py
+- Compliance: python train_compliance_model.py
+
+Existing models are pretrained
 
 ### ML Architecture
 Multi-Stream Reward Distribution:  
