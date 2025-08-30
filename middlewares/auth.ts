@@ -6,7 +6,7 @@ import authService from "../services/auth";
 export const auth =
 	(role: "User" | "Admin") =>
 	(request: Request, response: Response, next: NextFunction) => {
-		const accessToken = request.cookies["X-Access-Token"] || request.headers["X-Access-Token"];
+		const accessToken = request.cookies["X-Access-Token"] || request.headers["authorization"]?.split(" ")?.[1];
 		// Access token missing (401 unauthorised)
 		if (!accessToken) {
 			response.status(401).send({

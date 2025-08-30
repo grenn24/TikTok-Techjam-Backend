@@ -59,7 +59,7 @@ class AuthController {
 				maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 			});
 
-			res.header("X-Access-Token", token);
+			res.header("Authorization", `Bearer ${token}`);
 
 			// Return user info (optional) without token in JSON
 			return res.status(201).json(user);
@@ -112,7 +112,7 @@ class AuthController {
 				maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 			});
 
-			res.header("X-Access-Token", token);
+			res.header("Authorization", `Bearer ${token}`);
 
 			return res.status(200).json(user);
 		} catch (err) {

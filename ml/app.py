@@ -162,7 +162,7 @@ async def detect_anomalies(request: List[AuditLogEntry]):
             if pred == 1:
                 flagged.append(request[idx].model_dump())
 
-        return {"total_logs": len(request), "anomalies_detected": len(flagged), "flagged_entries": flagged}
+        return {"count": len(request), "anomalies_detected": len(flagged), "flagged_entries": flagged}
 
     except Exception as e:
         logger.exception("Error during anomaly detection")
