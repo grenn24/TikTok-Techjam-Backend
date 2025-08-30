@@ -3,15 +3,32 @@ import pandas as pd
 from sklearn.ensemble import IsolationForest
 import joblib
 import time
+import random
 
 
-synthetic_logs = [
-    {"id": "1", "userId": "user1", "action": "SEND_GIFT", "amount": 50, "createdAt": time.time()},
-    {"id": "2", "userId": "user2", "action": "SEND_GIFT", "amount": 70, "createdAt": time.time()},
-    {"id": "3", "userId": "user3", "action": "SUSPICIOUS_GIFTING", "amount": 1000, "createdAt": time.time()},  # anomaly
-    {"id": "4", "userId": "user4", "action": "SEND_GIFT", "amount": 30, "createdAt": time.time()},
-    {"id": "5", "userId": "user5", "action": "POTENTIAL_GAMING", "amount": 500, "createdAt": time.time()},  # anomaly
-]
+# Generate synthetic authentic logs
+synthetic_logs = []
+for i in range(1, 21):
+    user_id = f"user{i}"
+    
+    # Make some logs anomalous based on action and amount
+    if i % 7 == 0:
+        action = "SUSPICIOUS_GIFTING"
+        amount = random.randint(800, 1500)  # unusually high
+    elif i % 5 == 0:
+        action = "POTENTIAL_GAMING"
+        amount = random.randint(400, 700)
+    else:
+        action = "SEND_GIFT"
+        amount = random.randint(10, 100)
+    
+    synthetic_logs.append({
+        "id": str(i),
+        "userId": user_id,
+        "action": action,
+        "amount": amount,
+        "createdAt": time.time() + random.randint(-3600, 3600)  # +- 1 hour jitter
+    })
 
 
 action_mapping = {"SEND_GIFT": 0, "SUSPICIOUS_GIFTING": 1, "POTENTIAL_GAMING": 2}

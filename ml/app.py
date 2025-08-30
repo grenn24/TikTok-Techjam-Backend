@@ -10,10 +10,25 @@ import os
 from typing import List, Optional
 from fastapi import FastAPI, UploadFile, File
 from enum import Enum
+from datetime import datetime
 
+
+class AuditLogAction(str, Enum):
+    SUSPICIOUS_GIFTING = "SUSPICIOUS_GIFTING"
+    SEND_GIFT = "SEND_GIFT"
+    POTENTIAL_GAMING = "POTENTIAL_GAMING"
+
+class AuditLogEntry(BaseModel):
+    id: str
+    userId: str
+    action: AuditLogAction
+    amount: Optional[float] = 0
+    description: Optional[str] = ""
+    prevHash: Optional[str] = ""
+    hash: str
+    createdAt: datetime
 
 logger = logging.getLogger("uvicorn.error") 
-
 app = FastAPI(title="Reward ML Service")
 
 # Load the trained model once at startup
@@ -120,28 +135,10 @@ async def compliance_score(video: UploadFile = File(...)):
     
 
 
-class AuditLogAction(str, Enum):
-    SUSPICIOUS_GIFTING = "SUSPICIOUS_GIFTING"
-    SEND_GIFT = "SEND_GIFT"
-    POTENTIAL_GAMING = "POTENTIAL_GAMING"
 
-# Input model
-class AuditLogEntry(BaseModel):
-    id: str
-    userId: str
-    action: AuditLogAction
-    amount: Optional[float] = 0
-    description: Optional[str] = ""
-    prevHash: Optional[str] = ""
-    hash: str
-    createdAt: float  # timestamp in seconds
-
-# Input request
-class AuditLogRequest(BaseModel):
-    logs: List[AuditLogEntry]
 
 @app.post("/audit/anomaly-detection")
-async def detect_anomalies(request: AuditLogRequest):
+async def detect_anomalies(request: List[AuditLogEntry]):
     if anomaly_model is None:
         raise HTTPException(status_code=500, detail="Anomaly detection model not loaded")
 
@@ -153,12 +150,12 @@ async def detect_anomalies(request: AuditLogRequest):
             "POTENTIAL_GAMING": 2
         }
         features = []
-        for log in request.logs:
+        for log in request:
             features.append([
                 log.amount or 0,
-                int(log.userId[:8], 16) % 1000,  # simple numeric encoding for userId
+                hash(log.userId) % 1000,
                 action_mapping.get(log.action, 0),
-                log.createdAt
+                log.createdAt.timestamp()
             ])
         X = np.array(features, dtype=np.float32)
 
