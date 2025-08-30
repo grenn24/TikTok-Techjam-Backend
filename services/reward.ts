@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import config from "config";
 import contentService from "./content";
 
 class RewardService {
@@ -6,7 +7,6 @@ class RewardService {
 
 	// Calculate rewards for a creator
 	async getTotalRewards(creatorId: string) {
-		// Fetch all received gifts for that creator
 		const gifts = await this.prisma.gift.findMany({
 			where: { creatorId: creatorId },
 			include: { content: true },
@@ -14,10 +14,13 @@ class RewardService {
 		const contents = await this.prisma.content.findMany({
 			where: { creatorId: creatorId },
 		});
-		// Calculate rewards based on gift amount (45%) and creator fund for content quality (10%)
-		let totalReward = 0;
+
+		let totalGifts = 0;
+		let averageContentQualityScore = 0;
+		let totalContentQualityScore = 100;
+		const adPool = config.get<number>("ADVERTISEMENT_POOL");
 		for (const gift of gifts) {
-			totalReward += gift.amount * 0.45;
+			totalGifts += gift.amount;
 		}
 		for (const content of contents) {
 			let qualityScore = content.qualityScore;
@@ -26,9 +29,23 @@ class RewardService {
 					content.id
 				);
 			}
-			totalReward += qualityScore * 0.1;
+			averageContentQualityScore += qualityScore / contents.length;
+		}
+		await this.prisma.user.update({
+			where: { id: creatorId },
+			data: { averageContentQuality: averageContentQualityScore },
+		});
+
+		const otherUsers = await this.prisma.user.findMany({
+			where: { NOT: { id: creatorId } },
+		});
+		for (const user of otherUsers) {
+			if (user.averageContentQuality) {
+				totalContentQualityScore += user.averageContentQuality;
+			}
 		}
 
+		const totalReward = totalGifts * 0.4 + (averageContentQualityScore / totalContentQualityScore) * adPool * 0.3;
 		return totalReward;
 	}
 

@@ -40,10 +40,10 @@ class ContentController {
 	async generateContentQuality(req: Request, res: Response) {
 		try {
 			const contentId = req.params.id;
-			const content = await contentService.generateContentQualityScore(
+			const score = await contentService.generateContentQualityScore(
 				contentId
 			);
-			res.json(content);
+			res.json(score);
 		} catch (err: any) {
 			res.status(404).json({ error: err.message });
 		}

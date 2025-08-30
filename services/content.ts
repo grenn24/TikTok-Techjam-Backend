@@ -73,7 +73,7 @@ class ContentService {
 					qualityScore: response.data.qualityScore,
 				},
 			});
-			return updatedContent;
+			return updatedContent.qualityScore;
 		} catch (err) {
 			console.error("ML service error:", err);
 			return 1; // default multiplier if ML fails

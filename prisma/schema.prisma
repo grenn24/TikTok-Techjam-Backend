@@ -17,7 +17,7 @@ model User {
   contents     Content[]
   giftsSent     Gift[] @relation("SentGifts")
   giftsReceived Gift[] @relation("ReceivedGifts")
-  rewards      Reward?
+  averageContentQuality Float
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -89,14 +89,6 @@ enum GiftStatus {
   FAILED
 }
 
-model Reward {
-  id        String   @id @default(cuid())
-  creator   User     @relation(fields: [creatorId], references: [id])
-  creatorId String   @unique
-  amount    Float
-  reason    String?
-  createdAt DateTime @default(now())
-}
 
 // store suspicious gift transactions
 model FraudLog {
