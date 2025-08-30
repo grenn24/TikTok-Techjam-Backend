@@ -8,6 +8,8 @@ import joblib
 import cv2
 import os
 from typing import List, Optional
+from fastapi import FastAPI, UploadFile, File
+from enum import Enum
 
 
 logger = logging.getLogger("uvicorn.error") 
@@ -38,7 +40,7 @@ def health_check():
     return {"status": "ok", "model_loaded": model is not None}
 
 # Prediction endpoint
-@app.post("/content-quality")
+@app.post("/content/engagement-score")
 def predict(data: ContentFeatures):
     if model is None:
         raise HTTPException(status_code=500, detail="Model not loaded")
@@ -65,13 +67,13 @@ def predict(data: ContentFeatures):
         # LightGBM returns a scalar for single sample, convert directly
         quality_score = float(pred) * 100
 
-        return {"qualityScore": quality_score}
+        return {"engagementScore": quality_score}
 
     except Exception as e:
         logger.exception("Error during prediction")
         raise HTTPException(status_code=400, detail=str(e))
     
-@app.post("/compliance-score")
+@app.post("/content/compliance-score")
 async def compliance_score(video: UploadFile = File(...)):
     """
     Upload a video and get a compliance score (0-100).
@@ -117,8 +119,8 @@ async def compliance_score(video: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
     
 
-    # Enum for actions
-class AuditLogAction(str):
+
+class AuditLogAction(str, Enum):
     SUSPICIOUS_GIFTING = "SUSPICIOUS_GIFTING"
     SEND_GIFT = "SEND_GIFT"
     POTENTIAL_GAMING = "POTENTIAL_GAMING"

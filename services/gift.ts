@@ -33,7 +33,7 @@ class GiftService {
 		if (consumerId === creatorId) {
 			const logData = {
 				userId: consumerId,
-				action: "SUSPICIOUS_GIFTING",
+				action: "SUSPICIOUS_GIFTING" as const,
 				description: `User attempted to gift themselves ${amount} tokens.`,
 				amount,
 				prevHash: "",
@@ -64,7 +64,7 @@ class GiftService {
 		if (recentGift) {
 			const logData = {
 				userId: consumerId,
-				action: "POTENTIAL_GAMING",
+				action: "POTENTIAL_GAMING" as const,
 				description: `Repeated gifting detected to creator ${creatorId} for content ${contentId}`,
 				amount,
 				prevHash: "",
@@ -106,7 +106,7 @@ class GiftService {
 		// 4. Create the hash for this new entry
 		const logData = {
 			userId: consumerId,
-			action: "SEND_GIFT",
+			action: "SEND_GIFT" as const,
 			description: `Sent ${amount} tokens to user ${creatorId} for content ${
 				contentId ?? "N/A"
 			}`,
@@ -133,7 +133,7 @@ class GiftService {
 			});
 
 			const response = await axios.post(
-				"http://ml-service-url/audit/anomaly-detection",
+				`http://localhost:${config.get("ML_PORT")}/anomaly-detection`,
 				{ logs: recentLogs }
 			);
 

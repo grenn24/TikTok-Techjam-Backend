@@ -1,20 +1,27 @@
 # TikTok Techjam Backend
 
 ### API Routes
-- Create user  
-POST /user
+- Log in
+POST /auth/login  
+- Sign Up (Create user)  
+POST /auth/signup
+
 - Update user
-PUT /user
+PUT /user  
+
 - Post live videos  
 POST /content
-- Get content quality  
-GET /content/:contentId/quality
+- Get content engagement score
+GET /content/:contentId/engagement-score
+
 - Get reward breakdown for creators  
 GET /reward/:creatorId/breakdown
 - Get reward totals for creators
 GET /reward/:creatorId/total
-- Send gifts to creators  
+
+- Send gifts to a content 
 POST /gift
+
 - Manually Report fraud activity  
 POST /fraud
 
@@ -41,13 +48,15 @@ Add this to development.json:
 }
 ```
 
-2. Backend:  
+2. Check that u have psql installed (https://www.postgresql.org/download/windows/)
+
+3. Backend:  
 - Rename .env.development to .env
 - npm install
 - npm run prestart (build prisma client)
 - npm run dev  
 
-3. ML:  
+4. ML:  
 - python -m venv venv
 - source venv/bin/activate  # Linux/Mac
 - source venv/Scripts/activate  # Windows
@@ -71,4 +80,4 @@ Multi-Stream Reward Distribution:
 Creator Reward =  Consumer Gifts (40% weight) + Advertisement Revenue (30% weight based on views and watch time) + Creator Fund (30% weight based on AI content quality score)    
 
 AI Generated Content Quality:  
-Overall Content Quality Score = Content Quality (75% weight)  + Community Compliance Score (25% weight)
+Content Quality Score = Content Engagement Score (75% weight)  + Community Compliance Score (25% weight)
