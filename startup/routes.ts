@@ -1,4 +1,5 @@
 import express, { Express } from "express";
+import auditRoutes from "routes/audit";
 import error from "../middlewares/error";
 import authRoutes from "../routes/auth";
 import contentRoutes from "../routes/content";
@@ -16,6 +17,7 @@ const routes = (app: Express) => {
 	apiRouter.use("/gift", giftRoutes); // consumer -> creator gifts
 	apiRouter.use("/reward", rewardRoutes); // creator reward points
 	apiRouter.use("/fraud", fraudRoutes); // AML/fraud logs
+	apiRouter.use("/audit", auditRoutes); // Audit Logs
 
 	// Log errors
 	apiRouter.use(error);

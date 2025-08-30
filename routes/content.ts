@@ -8,7 +8,7 @@ const contentRoutes = express.Router();
 contentRoutes.use(auth("User"));
 
 // Get all content (optional filters like creator, type)
-contentRoutes.get("/", contentController.getAllContent.bind(contentController));
+contentRoutes.get("/", contentController.getContentByUser.bind(contentController));
 
 // Upload new content (video or live)
 contentRoutes.post(

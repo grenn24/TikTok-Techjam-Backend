@@ -40,7 +40,12 @@ class AuthController {
 
 			// Generate JWT token
 			const token = jwt.sign(
-				{ userId: user.id, role: user.role, type: "accessToken" },
+				{
+					id: user.id,
+					role: user.role,
+					email: user.email,
+					type: "accessToken",
+				},
 				config.get("SECRET_KEY") as string,
 				{
 					expiresIn: "7d",
@@ -88,7 +93,12 @@ class AuthController {
 
 			// Generate JWT token
 			const token = jwt.sign(
-				{ userId: user.id, role: user.role, type: "accessToken" },
+				{
+					id: user.id,
+					role: user.role,
+					email: user.email,
+					type: "accessToken",
+				},
 				config.get("SECRET_KEY") as string,
 				{
 					expiresIn: "7d",
