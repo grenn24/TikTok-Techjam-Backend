@@ -86,7 +86,10 @@ class ContentService {
 			where: filters || {},
 			include: { creator: true },
 		});
-		return contentList;
+		return contentList.map((content) => ({
+			...content,
+			contentQuality: CONTENT_QUALITY_TMP,
+		}))
 	}
 
 	// Update content info
