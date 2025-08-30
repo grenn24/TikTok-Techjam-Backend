@@ -19,7 +19,7 @@ GET /reward/:creatorId/breakdown
 - Get reward totals for creators
 GET /reward/:creatorId/total
 
-- Send gifts to creators  
+- Send gifts to a content 
 POST /gift
 
 - Manually Report fraud activity  
