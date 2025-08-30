@@ -1,7 +1,9 @@
 # TikTok Techjam Backend
 
 ### API Routes
-- Create user  
+- Log in
+POST /auth/login  
+- Sign Up (Create user)  
 POST /auth/signup
 - Update user
 PUT /user
