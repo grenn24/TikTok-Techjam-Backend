@@ -5,18 +5,23 @@
 POST /auth/login  
 - Sign Up (Create user)  
 POST /auth/signup
+
 - Update user
-PUT /user
+PUT /user  
+
 - Post live videos  
 POST /content
 - Get content engagement score
 GET /content/:contentId/engagement-score
+
 - Get reward breakdown for creators  
 GET /reward/:creatorId/breakdown
 - Get reward totals for creators
 GET /reward/:creatorId/total
+
 - Send gifts to creators  
 POST /gift
+
 - Manually Report fraud activity  
 POST /fraud
 
