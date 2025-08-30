@@ -5,7 +5,8 @@ class ContentController {
 	// Upload new content
 	async uploadContent(req: Request, res: Response) {
 		try {
-			const content = await contentService.createContent(req.body);
+			const user = res.locals.user;
+			const content = await contentService.createContent(user, req.body);
 			res.status(201).json(content);
 		} catch (err: any) {
 			res.status(400).json({ error: err.message });

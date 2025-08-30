@@ -3,15 +3,65 @@ import axios from "axios";
 import config from "config";
 import userService from "./user";
 
+interface ContentQuality {
+	engagement: {
+		score: number;
+		feedback: string;
+	};
+	delivery: {
+		score: number;
+		feedback: string;
+	};
+	education: {
+		score: number;
+		feedback: string;
+	};
+	communityGuidelines: {
+		score: number;
+		feedback: string;
+	};
+	audioVisual: {
+		score: number;
+		feedback: string;
+	};
+}
+const CONTENT_QUALITY_TMP = {
+	engagement: {
+		score: 35,
+		feedback: "asgager",
+	},
+	delivery: {
+		score: 0,
+		feedback: "weg",
+	},
+	education: {
+		score: 35,
+		feedback: "weg",
+	},
+	communityGuidelines: {
+		score: 23,
+		feedback: "wEG",
+	},
+	audioVisual: {
+		score: 35,
+		feedback: "WEWE",
+	},
+};
 class ContentService {
 	prisma = new PrismaClient();
 
 	// Create/upload new content
-	async createContent(data) {
+	async createContent(user, data) {
 		const content = await this.prisma.content.create({
-			data,
+			data: {
+				creatorId: user.id,
+				...data,
+			},
 		});
-		return content;
+		return {
+			...content,
+			contentQuality: CONTENT_QUALITY_TMP,
+		};
 	}
 
 	// Get a content item by ID
@@ -21,7 +71,10 @@ class ContentService {
 			include: { creator: true, gifts: true },
 		});
 		if (!content) throw new Error("Content not found");
-		return content;
+		return {
+			...content,
+			contentQuality: CONTENT_QUALITY_TMP,
+		};
 	}
 
 	// Get all content, optionally filtered by creator or type
@@ -36,7 +89,7 @@ class ContentService {
 		return contentList;
 	}
 
-	// Update content info (title, description)
+	// Update content info
 	async updateContent(
 		contentId: string,
 		updates: Partial<{ title: string; description: string }>

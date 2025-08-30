@@ -85,8 +85,8 @@ Add this to development.json:
 - 8001: ML Server
 
 ### Training ML Models 
-- Quality: python train_content_quality_model.py
-- Compliance: python train_compliance_model.py
+- Engagement: python train_engagement_model.py
+- Content Quality: python train_content_quality_model.py
 - Audit Log Anomaly: python train_anomaly_model.py
 
 Can also use existing pretrained models

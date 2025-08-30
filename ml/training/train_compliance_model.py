@@ -2,8 +2,6 @@ from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from keras_preprocessing.image import ImageDataGenerator
 
-
-
 # Example input shape (resize frames to 128x128 RGB)
 input_shape = (128, 128, 3)
 

@@ -27,6 +27,7 @@ class GiftService {
 			},
 		});
 		const totalToday = todayGifts.reduce((sum, g) => sum + g.amount, 0);
+		console.log(totalToday + amount);
 		if (totalToday + amount > DAILY_GIFT_LIMIT) {
 			throw new Error("Daily gift limit exceeded");
 		}
@@ -82,7 +83,7 @@ class GiftService {
 			});
 		}
 
-		const transaction = await this.prisma.gift.create({
+		const gift = await this.prisma.gift.create({
 			data: {
 				creatorId,
 				consumerId,
@@ -91,6 +92,7 @@ class GiftService {
 				status: "COMPLETED",
 			},
 		});
+		console.log(gift);
 
 		// Update recipient wallet balance
 		await this.prisma.user.update({
@@ -113,7 +115,7 @@ class GiftService {
 			}`,
 			amount,
 			prevHash,
-			giftId: transaction.id,
+			giftId: gift.id,
 		};
 		const hash = createHash("sha256")
 			.update(JSON.stringify(logData))
@@ -125,7 +127,7 @@ class GiftService {
 				hash,
 			},
 		});
-
+		console.log(giftLog)
 		try {
 			// Only get the most recent logs (last 1 hour)
 			const recentLogs = await this.prisma.auditLog.findMany({
@@ -155,7 +157,7 @@ class GiftService {
 			console.error("Anomaly detection failed:", err.message);
 		}
 
-		return transaction;
+		return gift;
 	}
 
 	// List gifts sent by a user
