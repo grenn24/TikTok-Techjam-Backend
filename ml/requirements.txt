@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 tensorflow
-numpy
+numpy==1.23.5
 pydantic
 scikit-learn
 pandas

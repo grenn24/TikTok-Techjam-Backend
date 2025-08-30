@@ -5,7 +5,6 @@ import cv2
 
 try:
     compliance_model = joblib.load("model/compliance_model.h5")
-    content_quality_model = joblib.load("model/content_quality_model.h5")
 except Exception as e:
     print("Error loading model:", e)
     compliance_model = None
@@ -30,11 +29,5 @@ def preprocess_features(features: list):
     features = np.array(features, dtype=np.float32).reshape(1, -1)
     return scaler.transform(features)
 
-def analyse_video_frame(frame):
-    # Resize and normalize
-    img = cv2.resize(frame, (128, 128))
-    img = img / 255.0
-    img = np.expand_dims(img, axis=0)  # batch dimension
-    score = compliance_model.predict(img)[0][0]
-    return score
+
 

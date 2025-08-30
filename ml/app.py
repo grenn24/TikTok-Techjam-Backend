@@ -2,7 +2,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import numpy as np
-from utils import preprocess_features, analyse_video_frame
+from utils import preprocess_features
 import logging
 import joblib
 import requests
@@ -12,6 +12,7 @@ from fastapi import FastAPI
 from enum import Enum
 from datetime import datetime
 from video_analyser import analyze_video
+
 
 class AuditLogAction(str, Enum):
     SUSPICIOUS_GIFTING = "SUSPICIOUS_GIFTING"

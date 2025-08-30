@@ -2,6 +2,13 @@ from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 from keras_preprocessing.image import ImageDataGenerator
 
+from tensorflow.python.keras.engine import data_adapter
+
+def _is_distributed_dataset(ds):
+    return isinstance(ds, data_adapter.input_lib.DistributedDatasetSpec)
+
+data_adapter._is_distributed_dataset = _is_distributed_dataset
+
 # Categories
 categories = ["CommunityGuidelines", "Education", "Delivery", "AudioVisual"]
 num_categories = len(categories)
@@ -49,7 +56,7 @@ val_generator = train_datagen.flow_from_directory(
 )
 
 # Train
-model.fit(train_generator, validation_data=val_generator, epochs=15)
+model.fit(train_generator, validation_data=val_generator, epochs=15,   steps_per_epoch=len(train_generator))
 
 # Save model
 model.save("../models/content_quality_model.h5")
