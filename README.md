@@ -5,6 +5,8 @@
 /user
 - Post live videos  
 /content
+- Get content quality
+/content/quality
 - Get reward breakdown for creators  
 /reward
 - Send gifts to creators  

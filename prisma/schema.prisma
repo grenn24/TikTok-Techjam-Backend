@@ -17,9 +17,10 @@ model User {
   contents     Content[]
   giftsSent     Gift[] @relation("SentGifts")
   giftsReceived Gift[] @relation("ReceivedGifts")
-  averageContentQuality Float
+  averageContentQuality Float  @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  auditLogs    AuditLog[]
 }
 
 enum Role {
@@ -44,6 +45,7 @@ model Content {
   commentCount Int @default(0)
   watchTime Float @default(0)  // in seconds
   length Float @default(0) // in seconds
+  views Int @default(0)
   url String?
 }
 
@@ -105,14 +107,20 @@ enum FraudType {
   AML
 }
 
-// immutable ledgers of transactions
+// immutable ledgers of gift transactions
 model AuditLog {
   id          String   @id @default(cuid())
+  user        User     @relation(fields: [userId], references: [id])
   userId      String
-  action      String   // e.g. "REWARD_TRANSFER", "WITHDRAWAL", "FRAUD_FLAG"
-  amount      Float?   // optional, only for value transfers
+  action      AuditLogAction   // e.g. "REWARD_TRANSFER", "WITHDRAWAL", "FRAUD_FLAG"
+  amount      Float?   // only for gift transfers
   description String?
   prevHash    String?  // hash of the previous record
   hash        String   // current entry hash (prevHash + row data)
   createdAt   DateTime @default(now())
+}
+enum AuditLogAction {
+  SUSPICIOUS_GIFTING
+  SEND_GIFT
+  POTENTIAL_GAMING
 }

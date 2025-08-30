@@ -28,6 +28,7 @@ class ContentFeatures(BaseModel):
     watchTime: float  # in seconds
     contentLength: float  # in seconds
     creatorReputation: float  # e.g., 0-1
+    views: int
 
 # Health check endpoint
 @app.get("/health")
@@ -49,6 +50,7 @@ def predict(data: ContentFeatures):
             data.watchTime,
             data.contentLength,
             data.creatorReputation,
+            data.views
         ]
 
         # Preprocess and ensure 2D array for the model

@@ -53,7 +53,9 @@ class ContentService {
 			const content = await this.getContent(contentId);
 
 			// calculate creator reputation (from 0 to 1)
-			const reputation = await userService.generateReputation(content.creatorId)
+			const reputation = await userService.generateReputation(
+				content.creatorId
+			);
 			const features = {
 				likes: content.likes,
 				shares: content.shares,
@@ -61,6 +63,7 @@ class ContentService {
 				watchTime: content.watchTime,
 				contentLength: content.length,
 				creatorReputation: reputation,
+				views: content.views,
 			};
 
 			const response = await axios.post(

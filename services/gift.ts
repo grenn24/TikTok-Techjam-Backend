@@ -1,5 +1,6 @@
 import { createHash } from "crypto";
 import { PrismaClient } from "@prisma/client";
+import config from "config";
 
 class GiftService {
 	prisma = new PrismaClient();
@@ -10,6 +11,74 @@ class GiftService {
 		amount: number;
 	}) {
 		const { creatorId, consumerId, contentId, amount } = data;
+
+		const DAILY_GIFT_LIMIT = config.get<number>("DAILY_GIFT_LIMIT");
+
+		// Daily Gift Limit Check
+		const todayStart = new Date();
+		todayStart.setHours(0, 0, 0, 0);
+		const todayGifts = await this.prisma.gift.findMany({
+			where: {
+				consumerId,
+				createdAt: { gte: todayStart },
+			},
+		});
+		const totalToday = todayGifts.reduce((sum, g) => sum + g.amount, 0);
+		if (totalToday + amount > DAILY_GIFT_LIMIT) {
+			throw new Error("Daily gift limit exceeded");
+		}
+
+		// Self-gifting detected
+		if (consumerId === creatorId) {
+			const logData = {
+				userId: consumerId,
+				action: "SUSPICIOUS_GIFTING",
+				description: `User attempted to gift themselves ${amount} tokens.`,
+				amount,
+				prevHash: "",
+			};
+
+			await this.prisma.auditLog.create({
+				data: {
+					...logData,
+					hash: createHash("sha256")
+						.update(JSON.stringify(logData))
+						.digest("hex"),
+				},
+			});
+			throw new Error(
+				"Suspicious gifting detected: cannot gift yourself"
+			);
+		}
+
+		// Check for potential gaming activities
+		const recentGift = await this.prisma.gift.findFirst({
+			where: {
+				consumerId,
+				creatorId,
+				contentId,
+				createdAt: { gte: new Date(Date.now() - 60 * 60 * 1000) }, // last 1 hour
+			},
+		});
+		if (recentGift) {
+			const logData = {
+				userId: consumerId,
+				action: "POTENTIAL_GAMING",
+				description: `Repeated gifting detected to creator ${creatorId} for content ${contentId}`,
+				amount,
+				prevHash: "",
+			};
+			await this.prisma.auditLog.create({
+				data: {
+					...logData,
+					hash: createHash("sha256")
+						.update(JSON.stringify(logData))
+						.digest("hex"),
+				},
+			});
+			// optional: throw error or just log
+		}
+
 		// 1. Create the transaction
 		const transaction = await this.prisma.gift.create({
 			data: {
