@@ -4,14 +4,16 @@
 - Create /update user  
 /user
 - Post live videos  
-/content
-- Get content quality
+POST /content
+- Get content quality  
 /content/quality
 - Get reward breakdown for creators  
-/reward
+/reward/:creatorId/breakdown
+- Get reward totals for creators
+/reward/:creatorId/total
 - Send gifts to creators  
 /gift
-- Report fraud activity  
+- Manually Report fraud activity  
 /fraud
 
 ### Setup Locally  
