@@ -68,6 +68,7 @@ class GiftService {
 				description: `Repeated gifting detected to creator ${creatorId} for content ${contentId}`,
 				amount,
 				prevHash: "",
+				giftId: recentGift.id,
 			};
 			await this.prisma.auditLog.create({
 				data: {
@@ -110,6 +111,7 @@ class GiftService {
 			}`,
 			amount,
 			prevHash,
+			giftId: transaction.id,
 		};
 		const hash = createHash("sha256")
 			.update(JSON.stringify(logData))

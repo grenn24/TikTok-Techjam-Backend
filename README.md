@@ -10,7 +10,7 @@ POST /auth/signup
 
 Protected Routes: (Require X-Access-Token header)  
 - Update user
-PUT /user  
+PUT /user/:id  
 
 - Get content by a user
 GET /content
@@ -30,9 +30,11 @@ POST /gift
 - Manually Report fraud activity  
 POST /fraud
 
-- Get all audit logs
+- Get all audit logs  
 GET /audit
-- Scan audit logs
+- Get audit log by id
+GET /audit/:id
+- Scan audit logs  
 POST /audit/scan
 
 ### Setup Locally  

@@ -9,6 +9,10 @@ class AuditService {
 		return this.prisma.auditLog.findMany();
 	}
 
+	async getAuditLogsByID(id: string) {
+		return this.prisma.auditLog.findUnique({ where: { id } });
+	}
+
 	async scanAuditLogs() {
 		const auditLogs = await this.prisma.auditLog.findMany();
 		const response = await axios.post(
@@ -16,6 +20,17 @@ class AuditService {
 			auditLogs
 		);
 		return response.data;
+	}
+
+	async listFlags() {
+		return this.prisma.auditLog.findMany({
+			where: {
+				action: {
+					in: ["SUSPICIOUS_GIFTING", "POTENTIAL_GAMING"],
+				},
+			},
+			orderBy: { createdAt: "desc" },
+		});
 	}
 }
 
