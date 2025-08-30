@@ -5,12 +5,13 @@ import numpy as np
 from utils import preprocess_features, analyse_video_frame
 import logging
 import joblib
-import cv2
+import requests
 import os
 from typing import List, Optional
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI
 from enum import Enum
 from datetime import datetime
+from video_analyser import analyze_video
 
 class AuditLogAction(str, Enum):
     SUSPICIOUS_GIFTING = "SUSPICIOUS_GIFTING"
@@ -32,8 +33,9 @@ app = FastAPI(title="Reward ML Service")
 
 # Load the trained models once
 try:
-    content_quality_model = joblib.load("model/content_quality_model.pkl")
+    engagement_model = joblib.load("model/engagement_model.pkl")
     anomaly_model = joblib.load("model/anomaly_detector_model.pkl")
+    content_quality_score = joblib.load("model/content_quality_model.pkl")
 except Exception as e:
     print("Error loading model:", e)
 
@@ -50,12 +52,12 @@ class ContentFeatures(BaseModel):
 # Health check endpoint
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "model_loaded": model is not None}
+    return {"status": "ok", "model_loaded":  engagement_model is not None and anomaly_model is not None and content_quality_score is not None}
 
-# Prediction endpoint
+# Engagement Score
 @app.post("/content/engagement-score")
 def predict(data: ContentFeatures):
-    if content_quality_model is None:
+    if engagement_model is None:
         raise HTTPException(status_code=500, detail="Content quality model not loaded")
 
     try:
@@ -75,7 +77,7 @@ def predict(data: ContentFeatures):
         x = np.array(x, dtype=np.float32).reshape(1, -1)  # shape (1, n_features)
 
         # Predict content quality / reward multiplier
-        pred = content_quality_model.predict(x)
+        pred = engagement_model.predict(x)
 
         # LightGBM returns a scalar for single sample, convert directly
         quality_score = float(pred) * 100
@@ -86,49 +88,32 @@ def predict(data: ContentFeatures):
         logger.exception("Error during prediction")
         raise HTTPException(status_code=400, detail=str(e))
     
-@app.post("/content/compliance-score")
-async def compliance_score(video: UploadFile = File(...)):
+
+@app.post("/content/content-quality-score")
+async def content_quality_score(video_url: str):
     """
-    Upload a video and get a compliance score (0-100).
+    Download a video from a URL, analyze frame by frame,
+    and return compliance scores and feedback per category.
     """
     try:
-        # Save uploaded file temporarily
-        tmp_path = f"tmp_{video.filename}"
+        # Download video
+        tmp_path = f"tmp_video.mp4"
+        resp = requests.get(video_url, stream=True)
+        if resp.status_code != 200:
+            raise HTTPException(status_code=400, detail="Failed to download video")
         with open(tmp_path, "wb") as f:
-            f.write(await video.read())
+            for chunk in resp.iter_content(chunk_size=8192):
+                f.write(chunk)
 
-        # Open video with OpenCV
-        cap = cv2.VideoCapture(tmp_path)
-        if not cap.isOpened():
-            raise HTTPException(status_code=400, detail="Could not open video")
+        # Analyze video
+        result = analyze_video(tmp_path)
 
-        frame_scores = []
-        frame_count = 0
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-
-            # Sample every 10th frame for speed
-            if frame_count % 10 == 0:
-                score = analyse_video_frame(frame)
-                frame_scores.append(score)
-
-            frame_count += 1
-
-        cap.release()
+        # Remove temp file
         os.remove(tmp_path)
 
-        if not frame_scores:
-            raise HTTPException(status_code=400, detail="No frames analyzed")
-
-        # Average score across frames and convert to 0-100
-        compliance_score = float(np.mean(frame_scores) * 100)
-
-        return {"complianceScore": compliance_score}
+        return result
 
     except Exception as e:
-        logger.exception("Error during compliance scoring")
         raise HTTPException(status_code=500, detail=str(e))
     
 @app.post("/audit/anomaly-detection")

@@ -1,44 +1,56 @@
-import pandas as pd
-import joblib
-import lightgbm as lgb
-from sklearn.preprocessing import MinMaxScaler
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from keras_preprocessing.image import ImageDataGenerator
 
+# Categories
+categories = ["CommunityGuidelines", "Education", "Delivery", "AudioVisual"]
+num_categories = len(categories)
 
+# Input shape (resize all frames to 128x128 RGB)
+input_shape = (128, 128, 3)
 
-def fit_scaler(X):
-    """
-    Fit a MinMaxScaler to your training data and save it.
-    """
-    global scaler
-    scaler = MinMaxScaler()
-    scaler.fit(X)
-    
-    # Make sure model directory exists
-    joblib.dump(scaler, "../model/scaler.pkl")
-    print("Scaler fitted and saved!")
+# Build CNN
+model = Sequential([
+    Conv2D(32, (3,3), activation='relu', input_shape=input_shape),
+    MaxPooling2D(2,2),
+    Conv2D(64, (3,3), activation='relu'),
+    MaxPooling2D(2,2),
+    Conv2D(128, (3,3), activation='relu'),
+    MaxPooling2D(2,2),
+    Flatten(),
+    Dense(256, activation='relu'),
+    Dropout(0.5),
+    Dense(num_categories, activation='sigmoid')  # one score per category (0-1)
+])
 
-# Historical content data
-data = pd.DataFrame({
-    "likes": [10, 50, 200, 500],
-    "shares": [1, 5, 20, 50],
-    "comments": [0, 3, 10, 25],
-    "watch_time": [30, 120, 600, 1800],
-    "content_length": [60, 90, 300, 600],
-    "creator_reputation": [0.2, 0.5, 0.7, 0.9],
-    "views": [1000, 5000, 10000, 20000],
-    "reward_multiplier": [1, 1.5, 2, 3]
-})
+model.compile(
+    optimizer='adam',
+    loss='mean_squared_error',   # regression problem (scores 0-1)
+    metrics=['mae']
+)
 
-X = data[["likes", "shares", "comments", "watch_time", "content_length", "creator_reputation", "views"]]
-y = data["reward_multiplier"] / max(data["reward_multiplier"])
+# Data generators
+train_datagen = ImageDataGenerator(rescale=1./255, validation_split=0.2)
 
-# Fit scaler
-fit_scaler(X)
+train_generator = train_datagen.flow_from_directory(
+    'frames', 
+    target_size=(128,128),
+    batch_size=32,
+    class_mode='categorical',  # multi-class
+    subset='training'
+)
 
-# Train LightGBM model
-model = lgb.LGBMRegressor(n_estimators=100, learning_rate=0.1)
-model.fit(X, y)
+val_generator = train_datagen.flow_from_directory(
+    'frames',
+    target_size=(128,128),
+    batch_size=32,
+    class_mode='categorical',
+    subset='validation'
+)
+
+# Train
+model.fit(train_generator, validation_data=val_generator, epochs=15)
 
 # Save model
-joblib.dump(model, "../model/content_quality_model.pkl")
-print("Model and scaler saved successfully!")
+model.save("../models/content_quality_model.h5")
+print("Model trained and saved as models/content_quality_model.h5")

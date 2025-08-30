@@ -5,3 +5,9 @@ dist/
 
 ml/venv
 ml/__pycache__
+
+ml/training/AudioVisual
+ml/training/CommunityGuidelines
+ml/training/Delivery
+ml/training/Education
+ml/training/frames
