@@ -91,4 +91,4 @@ model.fit(
 
 os.makedirs("../models", exist_ok=True)
 model.save("../models/content_quality_model.h5")
-print("Model trained and saved as ../models/content_quality_model.h5")
+print("Model trained and saved as ../model/content_quality_model.h5")
