@@ -12,7 +12,6 @@ from fastapi import FastAPI, UploadFile, File
 from enum import Enum
 from datetime import datetime
 
-
 class AuditLogAction(str, Enum):
     SUSPICIOUS_GIFTING = "SUSPICIOUS_GIFTING"
     SEND_GIFT = "SEND_GIFT"
@@ -37,7 +36,6 @@ try:
     anomaly_model = joblib.load("model/anomaly_detector_model.pkl")
 except Exception as e:
     print("Error loading model:", e)
-    model = None
 
 # Input schema
 class ContentFeatures(BaseModel):

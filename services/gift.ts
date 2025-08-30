@@ -137,7 +137,7 @@ class GiftService {
 			);
 
 			const { anomalies_detected, flagged_entries } = response.data;
-			console.log(response.data);
+
 			if (anomalies_detected > 0) {
 				// Update all flagged logs
 				for (const entry of flagged_entries) {
