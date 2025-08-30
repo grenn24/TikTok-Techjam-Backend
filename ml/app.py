@@ -149,20 +149,20 @@ async def detect_anomalies(request: List[AuditLogEntry]):
                 log.amount or 0,
                 hash(log.userId) % 1000,
                 action_mapping.get(log.action, 0),
-                log.createdAt.timestamp()
+                log.createdAt.timestamp() / 86400
             ])
         X = np.array(features, dtype=np.float32)
-
         # Predict anomalies (1 = anomaly, 0 = normal)
         predictions = anomaly_model.predict(X)
 
         # Return flagged entries
         flagged = []
         for idx, pred in enumerate(predictions):
-            if pred == 1:
+            print(pred)
+            if pred == -1:  # anomaly
                 flagged.append(request[idx].model_dump())
 
-        return {"count": len(request), "anomalies_detected": len(flagged), "flagged_entries": flagged}
+        return {"count": len(request), "anomalies_detected": len(flagged), "flagged_logs": flagged}
 
     except Exception as e:
         logger.exception("Error during anomaly detection")

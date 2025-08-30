@@ -4,6 +4,7 @@ from sklearn.ensemble import IsolationForest
 import joblib
 import time
 import random
+from sklearn.preprocessing import StandardScaler
 
 
 # Generate synthetic authentic logs
@@ -40,7 +41,12 @@ for log in synthetic_logs:
 
 df = pd.DataFrame(synthetic_logs)
 
-X = df[['amount', 'action_code', 'user_numeric', 'createdAt']].values.astype(np.float32)
+# Scale features: amount, user_numeric, action_code, createdAt
+features = df[['amount', 'user_numeric', 'action_code', 'createdAt']].values.astype(np.float32)
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(features)
+
+X = df[['amount', 'user_numeric', 'action_code', 'createdAt']].values.astype(np.float32)
 
 
 model = IsolationForest(contamination=0.2, random_state=42)
@@ -49,7 +55,6 @@ model.fit(X)
 
 preds = model.predict(X)  # 1 = normal, -1 = anomaly
 df["anomaly"] = preds
-df["anomaly"] = df["anomaly"].map({1: 0, -1: 1})  # convert to 0 = normal, 1 = anomaly
 
 print(df[["id", "userId", "amount", "action", "anomaly"]])
 
