@@ -14,7 +14,7 @@ def fit_scaler(X):
     scaler.fit(X)
     
     # Make sure model directory exists
-    joblib.dump(scaler, "model/scaler.pkl")
+    joblib.dump(scaler, "../model/scaler.pkl")
     print("Scaler fitted and saved!")
 
 # Historical content data
@@ -25,10 +25,11 @@ data = pd.DataFrame({
     "watch_time": [30, 120, 600, 1800],
     "content_length": [60, 90, 300, 600],
     "creator_reputation": [0.2, 0.5, 0.7, 0.9],
+    "views": [1000, 5000, 10000, 20000],
     "reward_multiplier": [1, 1.5, 2, 3]
 })
 
-X = data[["likes", "shares", "comments", "watch_time", "content_length", "creator_reputation"]]
+X = data[["likes", "shares", "comments", "watch_time", "content_length", "creator_reputation", "views"]]
 y = data["reward_multiplier"] / max(data["reward_multiplier"])
 
 # Fit scaler
