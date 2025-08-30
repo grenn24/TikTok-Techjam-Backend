@@ -77,10 +77,8 @@ class GiftService {
 						.digest("hex"),
 				},
 			});
-			// optional: throw error or just log
 		}
 
-		// 1. Create the transaction
 		const transaction = await this.prisma.gift.create({
 			data: {
 				creatorId,
@@ -91,13 +89,13 @@ class GiftService {
 			},
 		});
 
-		// 2. Update recipient wallet balance
+		// Update recipient wallet balance
 		await this.prisma.user.update({
 			where: { id: creatorId },
 			data: { walletBalance: { increment: amount } },
 		});
 
-		// 3. Get the latest audit log to get prevHash
+		// Get the latest audit log to get prevHash
 		const latestLog = await this.prisma.auditLog.findFirst({
 			orderBy: { createdAt: "desc" },
 		});
@@ -125,20 +123,21 @@ class GiftService {
 		});
 
 		try {
-			// Only get the new log or recent logs (last 1 hour)
+			// Only get the most recent logs (last 1 hour)
 			const recentLogs = await this.prisma.auditLog.findMany({
 				where: {
 					createdAt: { gte: new Date(Date.now() - 60 * 60 * 1000) },
 				},
 			});
-
 			const response = await axios.post(
-				`http://localhost:${config.get("ML_PORT")}/anomaly-detection`,
-				{ logs: recentLogs }
+				`http://localhost:${config.get(
+					"ML_PORT"
+				)}/audit/anomaly-detection`,
+				recentLogs
 			);
 
 			const { anomalies_detected, flagged_entries } = response.data;
-
+			console.log(response.data);
 			if (anomalies_detected > 0) {
 				// Update all flagged logs
 				for (const entry of flagged_entries) {
