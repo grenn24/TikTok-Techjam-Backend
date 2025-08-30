@@ -38,6 +38,8 @@ GET /audit/:id
 POST /audit/scan
 - List flagged audit logs
 GET /audit/flagged
+- Flag an audit log
+POST /audit/:id/flag
 
 ### Setup Locally  
 1. Create a /config directory with the following files:

@@ -25,7 +25,7 @@ class AuditController {
 	// used for sus activity report
 	async flag(req: Request, res: Response) {
 		const user = res.locals.user;
-		const flag = await auditService.flag(req.body, req.params.id, user);
+		const flag = await auditService.flag(user, req.body, req.params.id);
 		res.status(200).json(flag);
 	}
 }

@@ -33,11 +33,15 @@ class AuditService {
 		});
 	}
 
-	async flag(data, auditLogId: string, user: any) {
-		const auditLog = await this.prisma.auditLog.findUnique({ where: { id: auditLogId } });
+	async flag(user, data, auditLogId: string) {
+		const auditLog = await this.prisma.auditLog.findUnique({
+			where: { id: auditLogId },
+		});
 		if (!auditLog) throw new Error("Audit log not found");
-		
-		return this.prisma.suspiciousActivityReport.create({ data: { ...data, auditLogId: auditLog.id, reporterId: user.id } });
+
+		return this.prisma.suspiciousActivityReport.create({
+			data: { ...data, auditLogId: auditLog.id, reporterId: user.id },
+		});
 	}
 }
 
