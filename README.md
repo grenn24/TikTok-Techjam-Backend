@@ -8,7 +8,7 @@ POST /auth/login
 - Sign Up (Create user)  
 POST /auth/signup
 
-Protected Routes: (Require X-Access-Token header)  
+Protected Routes: (Require Authorization: Bearer header)  
 - Update user
 PUT /user/:id  
 
