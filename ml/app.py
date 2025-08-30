@@ -57,8 +57,8 @@ def health_check():
 # Prediction endpoint
 @app.post("/content/engagement-score")
 def predict(data: ContentFeatures):
-    if model is None:
-        raise HTTPException(status_code=500, detail="Model not loaded")
+    if content_quality_model is None:
+        raise HTTPException(status_code=500, detail="Content quality model not loaded")
 
     try:
         # Convert to feature vector
@@ -77,7 +77,7 @@ def predict(data: ContentFeatures):
         x = np.array(x, dtype=np.float32).reshape(1, -1)  # shape (1, n_features)
 
         # Predict content quality / reward multiplier
-        pred = model.predict(x)
+        pred = content_quality_model.predict(x)
 
         # LightGBM returns a scalar for single sample, convert directly
         quality_score = float(pred) * 100
@@ -133,10 +133,6 @@ async def compliance_score(video: UploadFile = File(...)):
         logger.exception("Error during compliance scoring")
         raise HTTPException(status_code=500, detail=str(e))
     
-
-
-
-
 @app.post("/audit/anomaly-detection")
 async def detect_anomalies(request: List[AuditLogEntry]):
     if anomaly_model is None:
