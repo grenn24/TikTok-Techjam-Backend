@@ -1,5 +1,6 @@
 import { createHash } from "crypto";
 import { PrismaClient } from "@prisma/client";
+import axios from "axios";
 import config from "config";
 
 class GiftService {
@@ -116,13 +117,43 @@ class GiftService {
 			.update(JSON.stringify(logData))
 			.digest("hex");
 
-		// 5. Write to AuditLog
 		await this.prisma.auditLog.create({
 			data: {
 				...logData,
 				hash,
 			},
 		});
+
+		try {
+			// Only get the new log or recent logs (last 1 hour)
+			const recentLogs = await this.prisma.auditLog.findMany({
+				where: {
+					createdAt: { gte: new Date(Date.now() - 60 * 60 * 1000) },
+				},
+			});
+
+			const response = await axios.post(
+				"http://ml-service-url/audit/anomaly-detection",
+				{ logs: recentLogs }
+			);
+
+			const { anomalies_detected, flagged_entries } = response.data;
+
+			if (anomalies_detected > 0) {
+				// Update all flagged logs
+				for (const entry of flagged_entries) {
+					await this.prisma.auditLog.update({
+						where: { id: entry.id },
+						data: { action: "SUSPICIOUS_GIFTING" },
+					});
+					console.warn(
+						`Anomaly detected for gift transaction ${entry.id}`
+					);
+				}
+			}
+		} catch (err) {
+			console.error("Anomaly detection failed:", err.message);
+		}
 
 		return transaction;
 	}
