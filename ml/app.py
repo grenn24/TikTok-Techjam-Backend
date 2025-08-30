@@ -8,6 +8,8 @@ import joblib
 import cv2
 import os
 from typing import List, Optional
+from fastapi import FastAPI, UploadFile, File
+from enum import Enum
 
 
 logger = logging.getLogger("uvicorn.error") 
@@ -117,8 +119,8 @@ async def compliance_score(video: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
     
 
-    # Enum for actions
-class AuditLogAction(str):
+
+class AuditLogAction(str, Enum):
     SUSPICIOUS_GIFTING = "SUSPICIOUS_GIFTING"
     SEND_GIFT = "SEND_GIFT"
     POTENTIAL_GAMING = "POTENTIAL_GAMING"
