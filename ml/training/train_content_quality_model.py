@@ -42,6 +42,3 @@ model.fit(X, y)
 # Save model
 joblib.dump(model, "../model/content_quality_model.pkl")
 print("Model and scaler saved successfully!")
-
-
-
