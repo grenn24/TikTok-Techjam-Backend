@@ -31,7 +31,7 @@ class AuditLogEntry(BaseModel):
 logger = logging.getLogger("uvicorn.error") 
 app = FastAPI(title="Reward ML Service")
 
-# Load the trained model once at startup
+# Load the trained models once
 try:
     content_quality_model = joblib.load("model/content_quality_model.pkl")
     anomaly_model = joblib.load("model/anomaly_detector_model.pkl")
@@ -160,15 +160,15 @@ async def detect_anomalies(request: List[AuditLogEntry]):
         X = np.array(features, dtype=np.float32)
 
         # Predict anomalies (1 = anomaly, 0 = normal)
-        predictions = content_quality_model.predict(X)
+        predictions = anomaly_model.predict(X)
 
         # Return flagged entries
         flagged = []
         for idx, pred in enumerate(predictions):
             if pred == 1:
-                flagged.append(request.logs[idx].dict())
+                flagged.append(request[idx].model_dump())
 
-        return {"total_logs": len(request.logs), "anomalies_detected": len(flagged), "flagged_entries": flagged}
+        return {"total_logs": len(request), "anomalies_detected": len(flagged), "flagged_entries": flagged}
 
     except Exception as e:
         logger.exception("Error during anomaly detection")
