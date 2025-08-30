@@ -24,8 +24,8 @@ contentRoutes.get(
 
 // Generate and populate the content quality field
 contentRoutes.post(
-	"/:id/quality",
-	contentController.generateContentQuality.bind(contentController)
+	"/:id/engagement-score",
+	contentController.generateEngagementScore.bind(contentController)
 );
 
 // Update content (title, description, qualityScore)

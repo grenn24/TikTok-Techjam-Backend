@@ -36,11 +36,11 @@ class ContentController {
 		}
 	}
 
-	// Generate content quality score
-	async generateContentQuality(req: Request, res: Response) {
+	// Generate content engagement score
+	async generateEngagementScore(req: Request, res: Response) {
 		try {
 			const contentId = req.params.id;
-			const score = await contentService.generateContentQualityScore(
+			const score = await contentService.generateEngagementScore(
 				contentId
 			);
 			res.json(score);

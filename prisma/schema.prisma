@@ -36,7 +36,6 @@ model Content {
   type        ContentType
   title       String
   description String?
-  qualityScore Float     @default(0)
   gifts Gift[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

@@ -7,8 +7,8 @@ POST /user
 PUT /user
 - Post live videos  
 POST /content
-- Get content quality  
-GET /content/:contentId/quality
+- Get content engagement score
+GET /content/:contentId/engagement-score
 - Get reward breakdown for creators  
 GET /reward/:creatorId/breakdown
 - Get reward totals for creators
@@ -71,4 +71,4 @@ Multi-Stream Reward Distribution:
 Creator Reward =  Consumer Gifts (40% weight) + Advertisement Revenue (30% weight based on views and watch time) + Creator Fund (30% weight based on AI content quality score)    
 
 AI Generated Content Quality:  
-Overall Content Quality Score = Content Quality (75% weight)  + Community Compliance Score (25% weight)
+Content Quality Score = Content Engagement Score (75% weight)  + Community Compliance Score (25% weight)

@@ -48,7 +48,7 @@ class ContentService {
 		return updatedContent;
 	}
 
-	async generateContentQualityScore(contentId: string) {
+	async generateEngagementScore(contentId: string) {
 		try {
 			const content = await this.getContent(contentId);
 
@@ -67,16 +67,12 @@ class ContentService {
 			};
 
 			const response = await axios.post(
-				`http://localhost:${config.get("ML_PORT")}/content-quality`,
+				`http://localhost:${config.get(
+					"ML_PORT"
+				)}/content/engagement-score`,
 				features
 			);
-			const updatedContent = await this.prisma.content.update({
-				where: { id: contentId },
-				data: {
-					qualityScore: response.data.qualityScore,
-				},
-			});
-			return updatedContent.qualityScore;
+			return response.data.engagementScore;
 		} catch (err) {
 			console.error("ML service error:", err);
 			return 1; // default multiplier if ML fails

@@ -133,7 +133,7 @@ class GiftService {
 			});
 
 			const response = await axios.post(
-				"http://ml-service-url/audit/anomaly-detection",
+				`http://localhost:${config.get("ML_PORT")}/anomaly-detection`,
 				{ logs: recentLogs }
 			);
 
