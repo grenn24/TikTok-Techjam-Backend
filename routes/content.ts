@@ -22,10 +22,16 @@ contentRoutes.get(
 	contentController.getContentById.bind(contentController)
 );
 
-// Generate and populate the content quality field
+// Generate engagement score
 contentRoutes.post(
 	"/:id/engagement-score",
 	contentController.generateEngagementScore.bind(contentController)
+);
+
+// Generate quality score
+contentRoutes.post(
+	"/:id/quality-score",
+	contentController.generateQualityScore.bind(contentController)
 );
 
 // Update content (title, description, qualityScore)

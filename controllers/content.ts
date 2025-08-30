@@ -52,6 +52,17 @@ class ContentController {
 		}
 	}
 
+	// Generate content quality score
+	async generateQualityScore(req: Request, res: Response) {
+		try {
+			const contentId = req.params.id;
+			const score = await contentService.generateQualityScore(contentId);
+			res.json(score);
+		} catch (err: any) {
+			res.status(404).json({ error: err.message });
+		}
+	}
+
 	// Update content info
 	async updateContent(req: Request, res: Response) {
 		try {

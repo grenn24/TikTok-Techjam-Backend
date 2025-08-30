@@ -27,7 +27,7 @@ class GiftService {
 			},
 		});
 		const totalToday = todayGifts.reduce((sum, g) => sum + g.amount, 0);
-		console.log(totalToday + amount);
+
 		if (totalToday + amount > DAILY_GIFT_LIMIT) {
 			throw new Error("Daily gift limit exceeded");
 		}
@@ -92,7 +92,6 @@ class GiftService {
 				status: "COMPLETED",
 			},
 		});
-		console.log(gift);
 
 		// Update recipient wallet balance
 		await this.prisma.user.update({
@@ -127,7 +126,7 @@ class GiftService {
 				hash,
 			},
 		});
-		console.log(giftLog)
+
 		try {
 			// Only get the most recent logs (last 1 hour)
 			const recentLogs = await this.prisma.auditLog.findMany({
