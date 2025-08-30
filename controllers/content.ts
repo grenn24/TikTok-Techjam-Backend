@@ -12,13 +12,15 @@ class ContentController {
 		}
 	}
 
-	// Get all content
-	async getAllContent(req: Request, res: Response) {
+	// Get all content by a user
+	async getContentByUser(req: Request, res: Response) {
 		try {
-			const filters = req.query; // optional filters like creatorId or type
-			const contentList = await contentService.listContent(
-				filters as any
-			);
+			const filters = req.query;
+			const user = res.locals.user;
+			const contentList = await contentService.listContent({
+				creatorId: user.id,
+				...filters,
+			});
 			res.json(contentList);
 		} catch (err: any) {
 			res.status(400).json({ error: err.message });

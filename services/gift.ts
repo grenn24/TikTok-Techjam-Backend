@@ -5,14 +5,16 @@ import config from "config";
 
 class GiftService {
 	prisma = new PrismaClient();
-	async sendGift(data: {
-		creatorId: string;
-		consumerId: string;
-		contentId: string;
-		amount: number;
-	}) {
-		const { creatorId, consumerId, contentId, amount } = data;
-
+	async sendGift(
+		user,
+		data: {
+			creatorId: string;
+			contentId: string;
+			amount: number;
+		}
+	) {
+		const { creatorId, contentId, amount } = data;
+		const consumerId = user.id;
 		const DAILY_GIFT_LIMIT = config.get<number>("DAILY_GIFT_LIMIT");
 
 		// Daily Gift Limit Check
@@ -68,6 +70,7 @@ class GiftService {
 				description: `Repeated gifting detected to creator ${creatorId} for content ${contentId}`,
 				amount,
 				prevHash: "",
+				giftId: recentGift.id,
 			};
 			await this.prisma.auditLog.create({
 				data: {
@@ -77,10 +80,8 @@ class GiftService {
 						.digest("hex"),
 				},
 			});
-			// optional: throw error or just log
 		}
 
-		// 1. Create the transaction
 		const transaction = await this.prisma.gift.create({
 			data: {
 				creatorId,
@@ -91,13 +92,13 @@ class GiftService {
 			},
 		});
 
-		// 2. Update recipient wallet balance
+		// Update recipient wallet balance
 		await this.prisma.user.update({
 			where: { id: creatorId },
 			data: { walletBalance: { increment: amount } },
 		});
 
-		// 3. Get the latest audit log to get prevHash
+		// Get the latest audit log to get prevHash
 		const latestLog = await this.prisma.auditLog.findFirst({
 			orderBy: { createdAt: "desc" },
 		});
@@ -112,12 +113,13 @@ class GiftService {
 			}`,
 			amount,
 			prevHash,
+			giftId: transaction.id,
 		};
 		const hash = createHash("sha256")
 			.update(JSON.stringify(logData))
 			.digest("hex");
 
-		await this.prisma.auditLog.create({
+		const giftLog = await this.prisma.auditLog.create({
 			data: {
 				...logData,
 				hash,
@@ -125,30 +127,28 @@ class GiftService {
 		});
 
 		try {
-			// Only get the new log or recent logs (last 1 hour)
+			// Only get the most recent logs (last 1 hour)
 			const recentLogs = await this.prisma.auditLog.findMany({
 				where: {
 					createdAt: { gte: new Date(Date.now() - 60 * 60 * 1000) },
 				},
 			});
-
 			const response = await axios.post(
-				`http://localhost:${config.get("ML_PORT")}/anomaly-detection`,
-				{ logs: recentLogs }
+				`http://localhost:${config.get(
+					"ML_PORT"
+				)}/audit/anomaly-detection`,
+				recentLogs
 			);
 
 			const { anomalies_detected, flagged_entries } = response.data;
-
 			if (anomalies_detected > 0) {
-				// Update all flagged logs
-				for (const entry of flagged_entries) {
+				const flaggedIds = flagged_entries.map((entry) => entry.id);
+				// Update current gift log if its suspicious
+				if (flaggedIds.includes(giftLog.id)) {
 					await this.prisma.auditLog.update({
-						where: { id: entry.id },
+						where: { id: giftLog.id },
 						data: { action: "SUSPICIOUS_GIFTING" },
 					});
-					console.warn(
-						`Anomaly detected for gift transaction ${entry.id}`
-					);
 				}
 			}
 		} catch (err) {

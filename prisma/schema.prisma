@@ -21,6 +21,7 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   auditLogs    AuditLog[]
+  suspiciousActivityReports SuspiciousActivityReport[]
 }
 
 enum Role {
@@ -81,29 +82,13 @@ model Gift {
   status    GiftStatus @default(PENDING)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  fraudLog FraudLog[]
+  auditLogs AuditLog[]
 }
 
 enum GiftStatus {
   PENDING
   COMPLETED
   FAILED
-}
-
-
-// store suspicious gift transactions
-model FraudLog {
-  id        String   @id @default(cuid())
-  gift      Gift     @relation(fields: [giftId], references: [id])
-  giftId    String   
-  type      FraudType
-  description String
-  createdAt DateTime @default(now())
-}
-
-enum FraudType {
-  FRAUD
-  AML
 }
 
 // immutable ledgers of gift transactions
@@ -113,13 +98,28 @@ model AuditLog {
   userId      String
   action      AuditLogAction
   amount      Float?   // only for gift transfers
+  giftId      String?
+  gift        Gift?     @relation(fields: [giftId], references: [id])
   description String?
   prevHash    String?  // hash of the previous record
   hash        String   // current entry hash (prevHash + row data)
   createdAt   DateTime @default(now())
+  suspiciousActivityReports SuspiciousActivityReport[]
 }
+
 enum AuditLogAction {
   SUSPICIOUS_GIFTING
   SEND_GIFT
   POTENTIAL_GAMING
+}
+
+model SuspiciousActivityReport {
+  id           String   @id @default(cuid())
+  reporterId   String
+  reporter     User     @relation(fields: [reporterId], references: [id])
+  auditLogId   String
+  auditLog     AuditLog @relation(fields: [auditLogId], references: [id])
+  reason       String
+  description  String?
+  createdAt    DateTime @default(now())
 }

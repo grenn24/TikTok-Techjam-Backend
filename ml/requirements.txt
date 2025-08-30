@@ -6,5 +6,5 @@ pydantic
 scikit-learn
 pandas
 joblib
-cv2
+opencv-python
 keras_preprocessing

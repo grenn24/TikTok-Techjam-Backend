@@ -1,14 +1,19 @@
 # TikTok Techjam Backend
 
 ### API Routes
+https://web.postman.co/workspace/My-Workspace~09c6ec3d-2d55-41d1-8fe8-469094d4a5d2/collection/40285423-a3c27248-4cde-495e-8e7c-cc58b4a93281?action=share&source=copy-link&creator=40285423  
+Public Routes:  
 - Log in
 POST /auth/login  
 - Sign Up (Create user)  
 POST /auth/signup
 
+Protected Routes: (Require Authorization: Bearer header)  
 - Update user
-PUT /user  
+PUT /user/:id  
 
+- Get content by a user
+GET /content
 - Post live videos  
 POST /content
 - Get content engagement score
@@ -24,6 +29,17 @@ POST /gift
 
 - Manually Report fraud activity  
 POST /fraud
+
+- Get all audit logs  
+GET /audit
+- Get audit log by id
+GET /audit/:id
+- Scan audit logs  
+POST /audit/scan
+- List flagged audit logs
+GET /audit/flagged
+- Flag an audit log
+POST /audit/:id/flag
 
 ### Setup Locally  
 1. Create a /config directory with the following files:

@@ -40,7 +40,12 @@ class AuthController {
 
 			// Generate JWT token
 			const token = jwt.sign(
-				{ userId: user.id, role: user.role, type: "accessToken" },
+				{
+					id: user.id,
+					role: user.role,
+					email: user.email,
+					type: "accessToken",
+				},
 				config.get("SECRET_KEY") as string,
 				{
 					expiresIn: "7d",
@@ -54,7 +59,7 @@ class AuthController {
 				maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 			});
 
-			res.header("X-Access-Token", token);
+			res.header("Authorization", `Bearer ${token}`);
 
 			// Return user info (optional) without token in JSON
 			return res.status(201).json(user);
@@ -88,7 +93,12 @@ class AuthController {
 
 			// Generate JWT token
 			const token = jwt.sign(
-				{ userId: user.id, role: user.role, type: "accessToken" },
+				{
+					id: user.id,
+					role: user.role,
+					email: user.email,
+					type: "accessToken",
+				},
 				config.get("SECRET_KEY") as string,
 				{
 					expiresIn: "7d",
@@ -102,7 +112,7 @@ class AuthController {
 				maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 			});
 
-			res.header("X-Access-Token", token);
+			res.header("Authorization", `Bearer ${token}`);
 
 			return res.status(200).json(user);
 		} catch (err) {
