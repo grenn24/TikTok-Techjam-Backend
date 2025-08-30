@@ -12,6 +12,8 @@ Protected Routes: (Require X-Access-Token header)
 - Update user
 PUT /user  
 
+- Get content by a user
+GET /content
 - Post live videos  
 POST /content
 - Get content engagement score
