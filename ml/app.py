@@ -7,6 +7,7 @@ import logging
 import joblib
 import cv2
 import os
+from typing import List, Optional
 
 
 logger = logging.getLogger("uvicorn.error") 
@@ -15,7 +16,8 @@ app = FastAPI(title="Reward ML Service")
 
 # Load the trained model once at startup
 try:
-    model = joblib.load("model/content_quality_model.pkl")
+    content_quality_model = joblib.load("model/content_quality_model.pkl")
+    anomaly_model = joblib.load("model/anomaly_detector_model.pkl")
 except Exception as e:
     print("Error loading model:", e)
     model = None
@@ -28,6 +30,7 @@ class ContentFeatures(BaseModel):
     watchTime: float  # in seconds
     contentLength: float  # in seconds
     creatorReputation: float  # e.g., 0-1
+    views: int
 
 # Health check endpoint
 @app.get("/health")
@@ -49,6 +52,7 @@ def predict(data: ContentFeatures):
             data.watchTime,
             data.contentLength,
             data.creatorReputation,
+            data.views
         ]
 
         # Preprocess and ensure 2D array for the model
@@ -110,4 +114,63 @@ async def compliance_score(video: UploadFile = File(...)):
 
     except Exception as e:
         logger.exception("Error during compliance scoring")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+    # Enum for actions
+class AuditLogAction(str):
+    SUSPICIOUS_GIFTING = "SUSPICIOUS_GIFTING"
+    SEND_GIFT = "SEND_GIFT"
+    POTENTIAL_GAMING = "POTENTIAL_GAMING"
+
+# Input model
+class AuditLogEntry(BaseModel):
+    id: str
+    userId: str
+    action: AuditLogAction
+    amount: Optional[float] = 0
+    description: Optional[str] = ""
+    prevHash: Optional[str] = ""
+    hash: str
+    createdAt: float  # timestamp in seconds
+
+# Input request
+class AuditLogRequest(BaseModel):
+    logs: List[AuditLogEntry]
+
+@app.post("/audit/anomaly-detection")
+async def detect_anomalies(request: AuditLogRequest):
+    if anomaly_model is None:
+        raise HTTPException(status_code=500, detail="Anomaly detection model not loaded")
+
+    try:
+        # Convert logs to feature matrix
+        action_mapping = {
+            "SEND_GIFT": 0,
+            "SUSPICIOUS_GIFTING": 1,
+            "POTENTIAL_GAMING": 2
+        }
+        features = []
+        for log in request.logs:
+            features.append([
+                log.amount or 0,
+                int(log.userId[:8], 16) % 1000,  # simple numeric encoding for userId
+                action_mapping.get(log.action, 0),
+                log.createdAt
+            ])
+        X = np.array(features, dtype=np.float32)
+
+        # Predict anomalies (1 = anomaly, 0 = normal)
+        predictions = content_quality_model.predict(X)
+
+        # Return flagged entries
+        flagged = []
+        for idx, pred in enumerate(predictions):
+            if pred == 1:
+                flagged.append(request.logs[idx].dict())
+
+        return {"total_logs": len(request.logs), "anomalies_detected": len(flagged), "flagged_entries": flagged}
+
+    except Exception as e:
+        logger.exception("Error during anomaly detection")
         raise HTTPException(status_code=500, detail=str(e))

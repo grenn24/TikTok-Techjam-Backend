@@ -1,16 +1,22 @@
 # TikTok Techjam Backend
 
-### Routes
-- Create /update user  
-/user
+### API Routes
+- Create user  
+POST /user
+- Update user
+PUT /user
 - Post live videos  
-/content
+POST /content
+- Get content quality  
+GET /content/:contentId/quality
 - Get reward breakdown for creators  
-/reward
+GET /reward/:creatorId/breakdown
+- Get reward totals for creators
+GET /reward/:creatorId/total
 - Send gifts to creators  
-/gift
-- Report fraud activity  
-/fraud
+POST /gift
+- Manually Report fraud activity  
+POST /fraud
 
 ### Setup Locally  
 1. Create a /config directory with the following files:
@@ -56,8 +62,9 @@ Add this to development.json:
 ### Training ML Models 
 - Quality: python train_content_quality_model.py
 - Compliance: python train_compliance_model.py
+- Audit Log Anomaly: python train_anomaly_model.py
 
-Existing models are pretrained
+Can also use existing pretrained models
 
 ### ML Architecture
 Multi-Stream Reward Distribution:  

@@ -13,10 +13,10 @@ rewardRoutes.get(
 	rewardController.getTotalRewards.bind(rewardController)
 );
 
-// Optional: list reward history
+// Get a detailed breakdown of rewards
 rewardRoutes.get(
-	"/history/:creatorId",
-	rewardController.listRewardHistory.bind(rewardController)
+	"/breakdown/:creatorId",
+	rewardController.getRewardsBreakdown.bind(rewardController)
 );
 
 export default rewardRoutes;
