@@ -8,8 +8,10 @@ class RewardService {
 	// Calculate rewards for a creator
 	async getTotalRewards(creatorId: string) {
 		let totalGifts = 0;
-		let averageContentQualityScore = 0;
-		let totalContentQualityScore = 100;
+		let averageEngagementScore = 0;
+		let averageQualityScore = 0;
+		let totalEngagementScore = 100;
+		let totalQualityScore = 100;
 		let averageViews = 0;
 		let averageWatchTime = 0;
 		let totalViews = 0;
@@ -33,13 +35,14 @@ class RewardService {
 
 		/*CALCULATE CONTENT SCORES AND ENGAGEMENT*/
 		for (const content of userContent) {
-			let qualityScore = content.qualityScore;
-			if (qualityScore === 0) {
-				qualityScore = await contentService.generateContentQualityScore(
-					content.id
-				);
-			}
-			averageContentQualityScore += qualityScore / userContent.length;
+			const engagementScore = await contentService.generateQualityScore(
+				content.id
+			);
+			const qualityScore = await contentService.generateQualityScore(
+				content.id
+			);
+			averageEngagementScore += engagementScore / userContent.length;
+			averageQualityScore += qualityScore / userContent.length;
 			averageViews += content.views / userContent.length;
 			averageWatchTime += content.watchTime / userContent.length;
 		}
@@ -49,7 +52,7 @@ class RewardService {
 		}
 		await this.prisma.user.update({
 			where: { id: creatorId },
-			data: { averageContentQuality: averageContentQualityScore },
+			data: { averageContentQuality: averageEngagementScore },
 		});
 
 		const otherUsers = await this.prisma.user.findMany({
@@ -57,7 +60,7 @@ class RewardService {
 		});
 		for (const user of otherUsers) {
 			if (user.averageContentQuality) {
-				totalContentQualityScore += user.averageContentQuality;
+				totalEngagementScore += user.averageContentQuality;
 			}
 		}
 
@@ -69,7 +72,8 @@ class RewardService {
 					(totalViews + totalWatchTime)) *
 				AD_POOL +
 			0.3 *
-				(averageContentQualityScore / totalContentQualityScore) *
+				(0.5 * (averageEngagementScore / totalEngagementScore) +
+					0.5 * (averageQualityScore / totalQualityScore)) *
 				CREATOR_FUND;
 		return totalReward;
 	}
@@ -96,13 +100,13 @@ class RewardService {
 		}
 
 		/* 3️⃣ Compute total content quality denominator for fund */
-		let totalContentQualityScore = 100; // start at 100 to avoid divide by zero
+		let totalEngagementScore = 100; // start at 100 to avoid divide by zero
 		const otherUsers = await this.prisma.user.findMany({
 			where: { NOT: { id: creatorId } },
 		});
 		for (const user of otherUsers) {
 			if (user.averageContentQuality) {
-				totalContentQualityScore += user.averageContentQuality;
+				totalEngagementScore += user.averageContentQuality;
 			}
 		}
 
@@ -111,18 +115,9 @@ class RewardService {
 		let totalGifts = 0;
 
 		for (const content of userContent) {
-			// ML quality score
-			let qualityScore = content.qualityScore;
-			if (!qualityScore || qualityScore === 0) {
-				qualityScore = await contentService.generateContentQualityScore(
-					content.id
-				);
-				// persist score
-				await this.prisma.content.update({
-					where: { id: content.id },
-					data: { qualityScore },
-				});
-			}
+			const qualityScore = await contentService.generateQualityScore(
+				content.id
+			);
 
 			// Gifts for this content
 			const giftAmount = gifts
@@ -140,7 +135,7 @@ class RewardService {
 
 			// Fund contribution based on quality score proportion
 			const fundReward =
-				0.3 * (qualityScore / totalContentQualityScore) * CREATOR_FUND;
+				0.3 * (qualityScore / totalEngagementScore) * CREATOR_FUND;
 
 			// Sum total reward per content
 			const totalRewardPerContent = giftReward + adRevenue + fundReward;
@@ -168,22 +163,25 @@ class RewardService {
 				totalReward > 0 ? (c.totalReward / totalReward) * 100 : 0,
 		}));
 
-		// 7️⃣ Update average content quality for creator
-		const averageContentQualityScore =
-			userContent.reduce((sum, c) => sum + (c.qualityScore ?? 0), 0) /
-			Math.max(userContent.length, 1);
+		let averageEngagementScore = 0;
+		for (const content of userContent) {
+			const qualityScore = await contentService.generateQualityScore(
+				content.id
+			);
+			averageEngagementScore +=
+				qualityScore / Math.max(userContent.length, 1);
+		}
 		await this.prisma.user.update({
 			where: { id: creatorId },
-			data: { averageContentQuality: averageContentQualityScore },
+			data: { averageContentQuality: averageEngagementScore },
 		});
 
-		/* 8️⃣ Return full breakdown */
 		return {
 			totalReward,
 			totalGifts,
 			adPool: AD_POOL,
 			creatorFund: CREATOR_FUND,
-			averageContentQualityScore,
+			averageEngagementScore,
 			contentBreakdown,
 		};
 	}
