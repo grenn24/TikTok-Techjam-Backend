@@ -58,6 +58,7 @@ Add this to development.json:
 ### Training ML Models 
 - Quality: python train_content_quality_model.py
 - Compliance: python train_compliance_model.py
+- Audit Log Anomaly: python train_anomaly_model.py
 
 Existing models are pretrained
 
