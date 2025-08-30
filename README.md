@@ -64,7 +64,7 @@ Add this to development.json:
 - Compliance: python train_compliance_model.py
 - Audit Log Anomaly: python train_anomaly_model.py
 
-Existing models are pretrained
+Can also use existing pretrained models
 
 ### ML Architecture
 Multi-Stream Reward Distribution:  
