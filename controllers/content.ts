@@ -43,9 +43,11 @@ class ContentController {
 	async generateEngagementScore(req: Request, res: Response) {
 		try {
 			const contentId = req.params.id;
+			console.log(3);
 			const score = await contentService.generateEngagementScore(
 				contentId
 			);
+			console.log(4);
 			res.json(score);
 		} catch (err: any) {
 			res.status(404).json({ error: err.message });

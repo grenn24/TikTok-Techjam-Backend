@@ -64,11 +64,12 @@ class ContentService {
 			include: { creator: true, gifts: true },
 		});
 		if (!content) throw new Error("Content not found");
+		console.log(1);
 		const contentQualityStruct =
 			await this.prisma.contentQuality.findUnique({
 				where: { contentId: content.id },
 			});
-
+		console.log(2);
 		const contentQuality = contentQualityStruct
 			? {
 					communityGuidelines: {
@@ -94,7 +95,7 @@ class ContentService {
 					},
 			  }
 			: await contentService.generateQualityScore(content.id);
-
+		console.log(3);
 		if (!contentQualityStruct) {
 			await this.prisma.contentQuality.create({
 				data: {
@@ -194,7 +195,14 @@ class ContentService {
 
 	async generateEngagementScore(contentId: string) {
 		try {
-			const content = await this.getContent(contentId);
+			const content = await this.prisma.content.findFirst({
+				where: { id: contentId },
+			});
+
+			if (!content) {
+				console.log("Content not found");
+				throw new Error("Content not found");
+			}
 
 			// calculate creator reputation (from 0 to 1)
 			const reputation = await userService.generateReputation(
@@ -209,13 +217,12 @@ class ContentService {
 				creatorReputation: reputation,
 				views: content.views,
 			};
-
+			console.log(1);
 			const response = await axios.post(
-				`http://localhost:${config.get(
-					"ML_PORT"
-				)}/content/engagement-score`,
+				`http://localhost:8000/content/engagement-score`,
 				features
 			);
+			console.log(2);
 			return response.data.engagementScore;
 		} catch (err) {
 			console.error("ML service error:", err);
@@ -225,7 +232,14 @@ class ContentService {
 
 	async generateQualityScore(contentId: string): Promise<ContentQuality> {
 		try {
-			const content = await this.getContent(contentId);
+			const content = await this.prisma.content.findFirst({
+				where: { id: contentId },
+			});
+
+			if (!content) {
+				console.log("Content not found");
+				throw new Error("Content not found");
+			}
 
 			if (!content.url) {
 				console.log("Content URL not found");
