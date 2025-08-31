@@ -35,14 +35,15 @@ class RewardService {
 
 		/*CALCULATE CONTENT SCORES AND ENGAGEMENT*/
 		for (const content of userContent) {
-			const engagementScore = await contentService.generateQualityScore(
+			const engagementScore = await contentService.generateEngagementScore(
 				content.id
 			);
 			const qualityScore = await contentService.generateQualityScore(
 				content.id
 			);
+			Object.values(qualityScore).map(x => x.score);
 			averageEngagementScore += engagementScore / userContent.length;
-			averageQualityScore += qualityScore / userContent.length;
+			averageQualityScore += Object.values(qualityScore).reduce((a, b) => a.score + b.score, 0) / userContent.length;
 			averageViews += content.views / userContent.length;
 			averageWatchTime += content.watchTime / userContent.length;
 		}
@@ -63,12 +64,12 @@ class RewardService {
 		});
 		for (const user of otherUsers) {
 			if (user.averageContentQuality) {
-				totalEngagementScore += user.averageContentQuality;
+				totalQualityScore += user.averageContentQuality;
 			}
 		}
 		for (const user of otherUsers) {
 			if (user.averageContentEngagement) {
-				totalQualityScore += user.averageContentEngagement;
+				totalEngagementScore += user.averageContentEngagement;
 			}
 		}
 
@@ -143,7 +144,13 @@ class RewardService {
 
 			// Fund contribution based on quality score proportion
 			const fundReward =
-				0.3 * (qualityScore / totalEngagementScore) * CREATOR_FUND;
+				0.3 *
+				(Object.values(qualityScore).reduce(
+					(a, b) => a.score + b.score,
+					0
+				) /
+					totalEngagementScore) *
+				CREATOR_FUND;
 
 			// Sum total reward per content
 			const totalRewardPerContent = giftReward + adRevenue + fundReward;
@@ -177,7 +184,10 @@ class RewardService {
 				content.id
 			);
 			averageEngagementScore +=
-				qualityScore / Math.max(userContent.length, 1);
+				Object.values(qualityScore).reduce(
+					(a, b) => a.score + b.score,
+					0
+				) / Math.max(userContent.length, 1);
 		}
 		await this.prisma.user.update({
 			where: { id: creatorId },

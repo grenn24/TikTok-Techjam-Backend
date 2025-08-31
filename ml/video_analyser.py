@@ -22,7 +22,8 @@ CATEGORY_KEYS = {
     "CommunityGuidelines": "communityGuidelines",
     "Education": "education",
     "Delivery": "delivery",
-    "AudioVisual": "audioVisual"
+    "AudioVisual": "audioVisual",
+    "Length": "length",
 }
 
 def analyze_video(video_path):
@@ -82,11 +83,21 @@ def analyze_video(video_path):
             print(f"[WARN] Skipping {cat} because model only returned {len(video_scores)} outputs.")
             continue
         score = float(video_scores[i])
-        feedback = f"Good {cat}." if score >= 0.5 else f"Needs improvement in {cat}."
-        result[key] = {
-            "score": round(score * 100),  # scale to 0–100 like your TMP
-            "feedback": feedback
-        }
+
+        # More descriptive feedback
+        if score >= 0.8:
+            feedback = f"Excellent {cat}. The content demonstrates strong performance with high quality and consistency."
+        elif score >= 0.6:
+            feedback = f"Good {cat}. The content generally performs well, though there may be minor areas for refinement."
+        elif score >= 0.4:
+            feedback = f"Fair {cat}. The content shows moderate quality but requires noticeable improvement to meet higher standards."
+        else:
+            feedback = f"Poor {cat}. Significant improvement is needed in this category to enhance the overall content quality."
+
+    result[key] = {
+        "score": round(score * 100),
+        "feedback": feedback
+    }
 
     print(f"[INFO] Final structured result: {result}")
     return result

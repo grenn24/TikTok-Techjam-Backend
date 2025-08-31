@@ -3,6 +3,18 @@ import axios from "axios";
 import config from "config";
 import userService from "./user";
 
+interface ScoreFeedback {
+	score: number;
+	feedback: string;
+}
+
+interface ContentQuality {
+	communityGuidelines: ScoreFeedback;
+	education: ScoreFeedback;
+	delivery: ScoreFeedback;
+	audioVisual: ScoreFeedback;
+	length: ScoreFeedback;
+}
 class ContentService {
 	prisma = new PrismaClient();
 
@@ -20,6 +32,24 @@ class ContentService {
 		const engagement = await contentService.generateEngagementScore(
 			content.id
 		);
+		await this.prisma.contentQuality.create({
+			data: {
+				contentId: content.id,
+				communityGuidelinesScore:
+					contentQuality.communityGuidelines.score,
+				educationScore: contentQuality.education.score,
+				deliveryScore: contentQuality.delivery.score,
+				audioVisualScore: contentQuality.audioVisual.score,
+				communityGuidelinesFeedback:
+					contentQuality.communityGuidelines.feedback,
+				educationFeedback: contentQuality.education.feedback,
+				deliveryFeedback: contentQuality.delivery.feedback,
+				audioVisualFeedback: contentQuality.audioVisual.feedback,
+				lengthScore: contentQuality.length.score,
+				lengthFeedback: contentQuality.length.feedback,
+			},
+		});
+
 		return {
 			...content,
 			contentQuality,
@@ -34,10 +64,36 @@ class ContentService {
 			include: { creator: true, gifts: true },
 		});
 		if (!content) throw new Error("Content not found");
+		const contentQualityStruct =
+			await this.prisma.contentQuality.findUnique({
+				where: { contentId: content.id },
+			});
 
-		const contentQuality = await contentService.generateQualityScore(
-			content.id
-		);
+		const contentQuality = contentQualityStruct
+			? {
+					communityGuidelines: {
+						score: contentQualityStruct.communityGuidelinesScore,
+						feedback:
+							contentQualityStruct.communityGuidelinesFeedback,
+					},
+					education: {
+						score: contentQualityStruct.educationScore,
+						feedback: contentQualityStruct.educationFeedback,
+					},
+					delivery: {
+						score: contentQualityStruct.deliveryScore,
+						feedback: contentQualityStruct.deliveryFeedback,
+					},
+					audioVisual: {
+						score: contentQualityStruct.audioVisualScore,
+						feedback: contentQualityStruct.audioVisualFeedback,
+					},
+					length: {
+						score: contentQualityStruct.lengthScore,
+						feedback: contentQualityStruct.lengthFeedback,
+					},
+			  }
+			: await contentService.generateQualityScore(content.id);
 		const engagement = await contentService.generateEngagementScore(
 			content.id
 		);
@@ -59,8 +115,38 @@ class ContentService {
 		});
 		return await Promise.all(
 			contentList.map(async (content) => {
-				const contentQuality =
-					await contentService.generateQualityScore(content.id);
+				const contentQualityStruct =
+					await this.prisma.contentQuality.findUnique({
+						where: { contentId: content.id },
+					});
+
+				const contentQuality = contentQualityStruct
+					? {
+							communityGuidelines: {
+								score: contentQualityStruct.communityGuidelinesScore,
+								feedback:
+									contentQualityStruct.communityGuidelinesFeedback,
+							},
+							education: {
+								score: contentQualityStruct.educationScore,
+								feedback:
+									contentQualityStruct.educationFeedback,
+							},
+							delivery: {
+								score: contentQualityStruct.deliveryScore,
+								feedback: contentQualityStruct.deliveryFeedback,
+							},
+							audioVisual: {
+								score: contentQualityStruct.audioVisualScore,
+								feedback:
+									contentQualityStruct.audioVisualFeedback,
+							},
+							length: {
+								score: contentQualityStruct.lengthScore,
+								feedback: contentQualityStruct.lengthFeedback,
+							},
+					  }
+					: await contentService.generateQualityScore(content.id);
 				const engagement = await contentService.generateEngagementScore(
 					content.id
 				);
@@ -116,12 +202,12 @@ class ContentService {
 		}
 	}
 
-	async generateQualityScore(contentId: string) {
+	async generateQualityScore(contentId: string): Promise<ContentQuality> {
 		try {
 			const content = await this.getContent(contentId);
 
 			if (!content.url) {
-				return 1;
+				throw new Error("Content URL not found");
 			}
 
 			const response = await axios.post(
@@ -135,7 +221,7 @@ class ContentService {
 			return response.data;
 		} catch (err) {
 			console.error("ML service error:", err);
-			return 1; // default multiplier if ML fails
+			throw err;
 		}
 	}
 }

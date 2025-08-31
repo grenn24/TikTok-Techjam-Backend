@@ -31,6 +31,8 @@ enum Role {
   ADMIN
 }
 
+
+
 model Content {
   id          String    @id @default(cuid())
   creator     User      @relation(fields: [creatorId], references: [id])
@@ -48,6 +50,23 @@ model Content {
   length Float @default(0) // in seconds
   views Int @default(0)
   url String?
+  contentQuality ContentQuality?  @relation("ContentToContentQuality")
+}
+
+model ContentQuality {
+  id          String    @id @default(cuid())
+  contentId    String  @unique
+  content     Content  @relation("ContentToContentQuality", fields: [contentId], references: [id])
+  communityGuidelinesScore Float
+   communityGuidelinesFeedback String
+	educationScore Float
+  	educationFeedback String
+	deliveryScore Float
+  	deliveryFeedback String
+	audioVisualScore Float
+  	audioVisualFeedback String
+    lengthScore Float
+    lengthFeedback String
 }
 
 enum ContentType {
