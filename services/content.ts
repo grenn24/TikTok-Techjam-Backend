@@ -169,6 +169,27 @@ class ContentService {
 							},
 					  }
 					: await contentService.generateQualityScore(content.id);
+				if (!contentQualityStruct) {
+					await this.prisma.contentQuality.create({
+						data: {
+							contentId: content.id,
+							communityGuidelinesScore:
+								contentQuality.communityGuidelines.score,
+							educationScore: contentQuality.education.score,
+							deliveryScore: contentQuality.delivery.score,
+							audioVisualScore: contentQuality.audioVisual.score,
+							communityGuidelinesFeedback:
+								contentQuality.communityGuidelines.feedback,
+							educationFeedback:
+								contentQuality.education.feedback,
+							deliveryFeedback: contentQuality.delivery.feedback,
+							audioVisualFeedback:
+								contentQuality.audioVisual.feedback,
+							lengthScore: contentQuality.length.score,
+							lengthFeedback: contentQuality.length.feedback,
+						},
+					});
+				}
 				const engagement = await contentService.generateEngagementScore(
 					content.id
 				);

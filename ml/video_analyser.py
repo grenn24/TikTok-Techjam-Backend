@@ -83,7 +83,11 @@ def analyze_video(video_path):
             print(f"[WARN] Skipping {cat} because model only returned {len(video_scores)} outputs.")
             continue
         score = float(video_scores[i])
-        feedback = f"Good {cat}." if score >= 0.5 else f"Needs improvement in {cat}."
+        feedback = (
+        f"Excellent work on {cat}! Your performance here shows strong understanding and effort."
+        if score >= 0.5 
+        else f"There's room for improvement in {cat}. Consider focusing on this area to strengthen your skills."
+        )
         result[key] = {
             "score": round(score * 100),
             "feedback": feedback
