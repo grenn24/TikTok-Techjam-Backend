@@ -77,14 +77,12 @@ def analyze_video(video_path):
     print(f"[INFO] Video scores (averaged per category): {video_scores}")
 
     # Build structured response
-    result = {}
     for i, (cat, key) in enumerate(CATEGORY_KEYS.items()):
         if i >= len(video_scores):
             print(f"[WARN] Skipping {cat} because model only returned {len(video_scores)} outputs.")
             continue
         score = float(video_scores[i])
 
-        # More descriptive feedback
         if score >= 0.8:
             feedback = f"Excellent {cat}. The content demonstrates strong performance with high quality and consistency."
         elif score >= 0.6:
@@ -94,6 +92,7 @@ def analyze_video(video_path):
         else:
             feedback = f"Poor {cat}. Significant improvement is needed in this category to enhance the overall content quality."
 
+    # ✅ This must be inside the loop
     result[key] = {
         "score": round(score * 100),
         "feedback": feedback
